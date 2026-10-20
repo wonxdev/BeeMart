@@ -1,6 +1,6 @@
 # Open Items & Project Roadmap — BeeMart POS Web App
 
-Daftar *to-do* dan status pengerjaan proyek **BeeMart POS Web App** berdasarkan rencana 15 fase, beserta catatan keputusan teknis dan asumsi.
+Daftar *to-do* dan status pengerjaan proyek **BeeMart POS Web App** berdasarkan rencana 15 fase, beserta *checklist* pemeliharaan repositori dan catatan keputusan teknis/asumsi.
 
 ---
 
@@ -21,18 +21,18 @@ Daftar *to-do* dan status pengerjaan proyek **BeeMart POS Web App** berdasarkan 
 - [x] Add the 4 required indexes (`UQ_MsUser_Username`, `UQ_TrTransaction_InvoiceNo`, `IX_TrTransaction_TransactionDate_IdUser`, `IX_MsProduct_Name`) and default constraints.
 
 ### Phase 3: Seed Data (DML)
-- [ ] Seed `LtPaymentMethod` (`Cash`, `Debit`, `Credit`).
-- [ ] Seed `MsUser` accounts (`admin`, `steven`, `gabri`, `mona`, `felix`, `gobuta`) with hashed passwords and 5-digit `IdUser` values matching the PDF examples.
-- [ ] Seed `MsProduct` items (`Apel Fuji`, `Apel Merah`, `Apel Hijau`, `Susu UHT Full Cream`, plus additional products to test the max-10 search limit) and sample historical transactions if needed.
-- [ ] Combine all DDL and DML into a single executable SQL script (`Database/BeeMart.sql`).
+- [x] Seed `LtPaymentMethod` (`Cash`, `Debit`, `Credit`).
+- [x] Seed `MsUser` accounts (`admin`, `steven`, `gabri`, `mona`, `felix`, `gobuta`) with hashed passwords (BCrypt work factor 11) and 5-digit `IdUser` values matching the PDF examples.
+- [x] Seed `MsProduct` items (`Apel Fuji`, `Apel Merah`, `Apel Hijau`, `Susu UHT Full Cream`, plus 18 additional products—totaling 12 `Apel` products, 4 `Susu` products, and 6 general grocery products—to test the max-10 search limit; `TrTransaction` and `TrTransactionDetail` are intentionally not seeded as they are created by the app).
+- [x] Combine all DDL and DML into a single executable, re-runnable SQL script (`Database/BeeMart.sql`) and verify execution twice against `localhost\SQLEXPRESS`.
 
 ### Phase 4: EF Core Entities & DbContext
 - [ ] Create entity classes for `MsUser`, `LtPaymentMethod`, `MsProduct`, `TrTransaction`, and `TrTransactionDetail` in `BeeMart.Api`.
-- [ ] Create `BeeMartDbContext` with Fluent API configurations matching the SQL schema and register it in `BeeMart.Api/Program.cs` using `DefaultConnection`.
+- [ ] Create `BeeMartDbContext` with Fluent API configurations matching the SQL schema and register it in `BeeMart.Api/Program.cs` using `DefaultConnection` (and update `DefaultConnection` in `BeeMart.Api/appsettings.json` to `localhost\SQLEXPRESS`).
 
 ### Phase 5: Backend Foundations
 - [ ] Implement standard JSON response wrapper (`status`, `message`, `data`) and `/api/v1` routing convention.
-- [ ] Implement password hasher & verifier (`PasswordHash`).
+- [ ] Add `BCrypt.Net-Next` to `BeeMart.Api` and implement password hasher & verifier (`PasswordHash`).
 - [ ] Implement JWT token generation, authentication/authorization middleware, and claims helper (`IdUser`, `Username`, `FullName`, `Role`).
 
 ### Phase 6: Backend Auth Endpoints
@@ -72,7 +72,18 @@ Daftar *to-do* dan status pengerjaan proyek **BeeMart POS Web App** berdasarkan 
 
 ---
 
-## 2. Notes / Decisions / Blockers (Assumptions Recorded in Phase 1 & Phase 2)
+## 2. Repository Housekeeping Checklist (Non-Phase)
+
+- [x] Create standard Visual Studio / .NET `.gitignore` at the repository root (ignoring `bin/`, `obj/`, `.vs/`, `*.user`, `*.suo`, `*.userprefs`, `*.log`, `TestResults/`, `.idea/`, `.vscode/*`, `*.mdf`, `*.ldf`, `scratch/`, while keeping `launchSettings.json` and `appsettings.Development.json` tracked).
+- [x] Create practical `README.md` at the repository root (project overview, tech stack, layout, prerequisites, setup steps, seeded accounts table with local-dev password note, and phase status).
+- [ ] **Manual Git Action Required by User**: Untrack previously committed `bin/` and `obj/` build artifacts (`BeeMart.Api/bin/`, `BeeMart.Api/obj/`, `BeeMart.Web/bin/`, `BeeMart.Web/obj/` — 188 files total) by running:
+  ```powershell
+  git rm -r --cached BeeMart.Api/bin BeeMart.Api/obj BeeMart.Web/bin BeeMart.Web/obj
+  ```
+
+---
+
+## 3. Notes / Decisions / Blockers (Assumptions Recorded in Phases 1–3)
 
 1. **WebClient Project Template Choice (`ASP.NET Core Razor Pages`)**:
    - Sesuai `NFR-TECH-002` dan instruksi Phase 1 Task 3 (*"ASP.NET Core Razor Pages or MVC, net8.0"*), proyek `BeeMart.Web` dibuat menggunakan template **ASP.NET Core Razor Pages** karena sangat selaras dengan pembagian fase berbasis halaman (*Phase 11: Auth Pages*, *Phase 12: Shared Layout*, *Phase 13: New Transaction Page*, *Phase 14: History Page*).
@@ -93,5 +104,9 @@ Daftar *to-do* dan status pengerjaan proyek **BeeMart POS Web App** berdasarkan 
    - **No Foreign Key `ON DELETE CASCADE`**: Karena seluruh tabel menerapkan *soft-delete* melalui kolom `Stsrc BIT NOT NULL DEFAULT (1)`, *foreign key* dibuat dengan perilaku standar `NO ACTION` (tanpa penghapusan fisik berantai).
    - **Explicit Constraint & Index Naming**: Seluruh *Primary Key*, *Foreign Key*, *Unique*, *Check* (`CK_MsUser_Role`, `CK_LtPaymentMethod_MethodName`), dan *Default* (`DF_<Table>_<Column>`) diberi nama secara eksplisit, serta keempat indeks dari `PRD.md` Section 5.4 (`UQ_MsUser_Username`, `UQ_TrTransaction_InvoiceNo`, `IX_TrTransaction_TransactionDate_IdUser`, `IX_MsProduct_Name`) dilindungi dengan pengecekan `sys.indexes` agar *idempotent*.
    - **Kept `Database/.gitkeep`**: File `Database/.gitkeep` tetap dipertahankan berdampingan dengan `Database/BeeMart.sql` dan telah dicatat pada `CHANGELOG.md` serta `STRUCTURE.md`.
-   - **Live Execution & Idempotency Verification**: Script `Database/BeeMart.sql` telah **dieksekusi secara langsung sebanyak dua kali berturut-turut** menggunakan `sqlcmd -S "localhost\SQLEXPRESS" -E -C -b -i "Database\BeeMart.sql"` dengan hasil `exit code: 0` tanpa error pada kedua eksekusi. Pemeriksaan katalog sistem (`sys.tables`, `sys.indexes`, `sys.foreign_keys`, `sys.check_constraints`, `sys.default_constraints`) mengonfirmasi keberadaan 5 tabel, 4 indeks Section 5.4 (+ `UQ_LtPaymentMethod_MethodName` & 5 PK), 4 FK, 2 CHECK constraint, dan 26 DEFAULT constraint yang 100% sesuai dengan `PRD.md` Section 5.1 & 5.3.
-   - **Catatan Instance SQL Server Lokal (`localhost\SQLEXPRESS`)**: Instance SQL Server yang aktif pada mesin ini adalah `MSSQL$SQLEXPRESS` (`localhost\SQLEXPRESS`). Pada Phase 4 (ketika mengonfigurasi `BeeMartDbContext`), pastikan apakah `DefaultConnection` di `BeeMart.Api/appsettings.json` perlu disesuaikan ke `Server=localhost\\SQLEXPRESS` atau tetap `Server=localhost`.
+   - **Live Execution & Idempotency Verification**: Script `Database/BeeMart.sql` telah **dieksekusi secara langsung sebanyak dua kali berturut-turut** menggunakan `sqlcmd -S "localhost\SQLEXPRESS" -E -C -b -i "Database\BeeMart.sql"` dengan hasil `exit code: 0` tanpa error pada kedua eksekusi.
+7. **Phase 3 Seed Data (DML) & Password Hashing Decisions**:
+   - **Algoritma Password Hashing (`BCrypt`) & Shared Development Password**: Dipilih algoritma **BCrypt** (work factor `11`, menghasilkan hash sepanjang 60 karakter berawalan `$2a$11$`). Keenam user awal (`admin`, `steven`, `gabri`, `mona`, `felix`, `gobuta`) menggunakan satu *shared development password* khusus pengembangan lokal yaitu `Password123!` (sesuai contoh `PRD.md` Section 6.2), di mana setiap user memiliki *salt* dan nilai `PasswordHash` unik masing-masing. Password teks murni tidak pernah ditulis di dalam `Database/BeeMart.sql`.
+   - **Penambahan Paket `BCrypt.Net-Next` pada Phase 5**: Paket NuGet `BCrypt.Net-Next` **harus ditambahkan ke `BeeMart.Api` pada Phase 5** saat mengimplementasikan `PasswordHasher.cs` untuk verifikasi login (`BCrypt.Verify`) dan registrasi user baru (`BCrypt.HashPassword`).
+   - **Penyesuaian Connection String ke `localhost\SQLEXPRESS` pada Phase 4**: Instance SQL Server lokal yang aktif pada mesin ini adalah `localhost\SQLEXPRESS`. Pada **Phase 4**, nilai `ConnectionStrings:DefaultConnection` di `BeeMart.Api/appsettings.json` perlu diubah dari `Server=localhost;...` menjadi `Server=localhost\\SQLEXPRESS;Database=BeeMart;Trusted_Connection=True;TrustServerCertificate=True;`.
+   - **Fixed Product GUIDs & Pencarian > 10 Produk**: Seluruh 22 baris produk pada `MsProduct` menggunakan GUID statis (`a1b2c3d4-0001-4000-8000-000000000001` s/d `...0022`) agar konsisten dengan contoh JSON di `PRD.md` Section 6.2, mencakup 12 produk `Apel` (untuk menguji batas pencarian maksimal 10 data), 4 produk `Susu`, dan 6 produk kebutuhan pokok lainnya. Tabel `TrTransaction` dan `TrTransactionDetail` sengaja tidak di-*seed* karena transaksi dibuat melalui aplikasi.

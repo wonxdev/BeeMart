@@ -1,0 +1,71 @@
+## ============================================================================
+## Visual Studio / .NET Standard .gitignore — BeeMart POS Web App
+## ============================================================================
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.userprefs
+
+# Visual Studio / Rider / VS Code caches & local state
+.vs/
+.idea/
+*.sln.iml
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]eleases/
+[Rr]elease/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+*.log
+
+# Test results & coverage
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+*.trx
+*.coverage
+*.coveragexml
+
+# NuGet & MSBuild artifacts
+*.nupkg
+*.snupkg
+project.lock.json
+project.fragment.lock.json
+artifacts/
+*.msbuild.binlog
+
+# SQL Server local database files
+*.mdf
+*.ldf
+*.ndf
+
+# Temporary / scratch folders
+scratch/
+[Tt]mp/
+[Tt]emp/
+
+# OS metadata
+.DS_Store
+Thumbs.db
+
+# Explicitly keep launchSettings.json (fixed ports) & appsettings.Development.json
+!**/Properties/launchSettings.json
+!**/appsettings.Development.json

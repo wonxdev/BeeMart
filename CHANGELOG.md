@@ -8,7 +8,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
-- **Phase 3**: Seed Data (DML) — payment methods, users with hashed passwords, products, and sample transactions combined into `Database/BeeMart.sql`.
 - **Phase 4**: EF Core Entities & `BeeMartDbContext`.
 - **Phase 5**: Backend Foundations (JSON response wrapper, `/api/v1` versioning, password hasher, JWT authentication, claims helper).
 - **Phase 6**: Backend Auth Endpoints (`POST /api/v1/auth/register`, `POST /api/v1/auth/login`).
@@ -21,6 +20,41 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - **Phase 13**: WebClient New Transaction Page.
 - **Phase 14**: WebClient History Page (`Cashier` & `Admin` modes).
 - **Phase 15**: Final Checks & Delivery verification.
+
+---
+
+## [Repository housekeeping (non-phase)] - 2026-10-20 — Git Ignore & Project README
+
+### Added
+- Created root `.gitignore` tailored for Visual Studio / .NET 8 (`bin/`, `obj/`, `.vs/`, `.idea/`, `.vscode/*`, `*.user`, `*.suo`, `*.userprefs`, `*.log`, `TestResults/`, `*.mdf`, `*.ldf`, `scratch/`), while explicitly preserving `launchSettings.json` and `appsettings.Development.json`. Did not modify `.gitattributes`.
+- Created root `README.md` documenting project overview, tech stack, repository layout, prerequisites, database & application setup steps (`sqlcmd` and SSMS), fixed ports (`https://localhost:7001` and `https://localhost:7002`), HTTPS certificate trust command, seeded development accounts table, and project status links.
+- Inspected tracked files via read-only `git ls-files` and identified 188 build artifact files currently tracked under `BeeMart.Api/bin/`, `BeeMart.Api/obj/`, `BeeMart.Web/bin/`, and `BeeMart.Web/obj/` (recorded in `OPEN-ITEMS.md` with manual `git rm -r --cached` commands for the repository owner).
+
+---
+
+## [Phase 3] - 2026-10-20 — Seed Data (DML)
+
+### Added
+- Extended `Database/BeeMart.sql` below `-- PHASE 3: SEED DATA GOES BELOW THIS LINE` (leaving Phase 2 DDL untouched) with idempotent, re-runnable T-SQL seed statements (`IF NOT EXISTS` / `WHERE NOT EXISTS` on natural keys, explicit `UserIn = N'SYSTEM'`, preserving `USE [BeeMart]` and `GO` batch separators):
+  1. **`dbo.LtPaymentMethod` (3 rows)**:
+     - Seeded `Cash`, `Debit`, and `Credit` in exact order without `SET IDENTITY_INSERT`, producing `IdPaymentMethod` values `1`, `2`, and `3`, guarded on `MethodName`.
+  2. **`dbo.MsUser` (6 rows)**:
+     - Seeded `admin` (`00001`, role `Admin`), `steven` (`76985`, role `Cashier`), `gabri` (`66859`, role `Cashier`), `mona` (`55794`, role `Cashier`), `felix` (`78886`, role `Cashier`), and `gobuta` (`55356`, role `Cashier`), guarded on `Username`.
+     - **Password Hashing Approach**: Generated 6 unique **BCrypt** hashes (`$2a$11$...`, work factor 11, 60 chars each) using `BCrypt.Net-Next` (v4.0.3) in a temporary scratch console project outside the repository, verified all 6 hashes with `BCrypt.Verify("Password123!", hash) == true`, pasted only the hash literals into `Database/BeeMart.sql` (no plain-text password in the SQL file), and deleted the temporary project.
+  3. **`dbo.MsProduct` (22 rows)**:
+     - Seeded 22 products with fixed, hard-coded GUID strings (`a1b2c3d4-0001-4000-8000-000000000001` through `...0022`), guarded on `IdProduct`:
+       - **4 core PRD products (`0001`–`0004`)**: `Apel Fuji`, `Apel Merah`, `Apel Hijau`, `Susu UHT Full Cream`.
+       - **9 additional `Apel` products (`0005`–`0013`, 12 `Apel` total)** to test the max-10 search result limit: `Apel Malang`, `Apel Royal Gala`, `Apel Granny Smith`, `Apel Envy`, `Apel Pacific Rose`, `Apel Honeycrisp`, `Apel Pink Lady`, `Apel Red Delicious`, `Apel Manalagi`.
+       - **3 additional `Susu` products (`0014`–`0016`, 4 `Susu` total)**: `Susu UHT Cokelat`, `Susu UHT Stroberi`, `Susu Kental Manis Putih`.
+       - **6 additional general grocery products (`0017`–`0022`)**: `Beras Pandan Wangi 5 Kg`, `Minyak Goreng Sawit 2 L`, `Gula Pasir Putih 1 Kg`, `Mie Instan Goreng`, `Telur Ayam Negeri 1 Kg`, `Kopi Bubuk Arabika 200 g`.
+  4. **No transactions seeded**: `TrTransaction` and `TrTransactionDetail` remain empty (`0` rows) to be created through the application.
+
+### Verified
+- Executed `sqlcmd -S "localhost\SQLEXPRESS" -E -C -b -i "Database\BeeMart.sql"` twice consecutively; both runs exited with code `0`.
+- Verified via SQL queries after the second run: `LtPaymentMethod` = 3 rows (`1=Cash`, `2=Debit`, `3=Credit`), `MsUser` = 6 rows with matching `IdUser` and `Role` values and 0 invalid/plain-text hashes (all 6 start with `$2a$11$` and have length 60), `MsProduct` = 22 rows (`12` matching `LIKE '%Apel%'`, `4` matching `LIKE '%Susu%'`), and `0` duplicate rows.
+
+### Changed
+- Updated `STRUCTURE.md`, `OPEN-ITEMS.md`, and `CHANGELOG.md` to reflect Phase 3 completion and repository housekeeping tasks.
 
 ---
 

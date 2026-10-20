@@ -8,8 +8,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
-- **Phase 5**: Backend Foundations (JSON response wrapper, `/api/v1` versioning, password hasher, JWT authentication, claims helper).
-- **Phase 6**: Backend Auth Endpoints (`POST /api/v1/auth/register`, `POST /api/v1/auth/login`).
 - **Phase 7**: Backend Master Data Endpoints (`GET /api/v1/payment-methods`, `GET /api/v1/products/search`).
 - **Phase 8**: Backend Transaction Endpoints (`GET /api/v1/transactions/next-invoice`, `POST /api/v1/transactions`).
 - **Phase 9**: Backend History Endpoint (`GET /api/v1/transactions/history`).
@@ -19,6 +17,66 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - **Phase 13**: WebClient New Transaction Page.
 - **Phase 14**: WebClient History Page (`Cashier` & `Admin` modes).
 - **Phase 15**: Final Checks & Delivery verification.
+
+---
+
+## [Phase 6] - 2026-10-20 — Backend Authentication Endpoints
+
+### Added
+- Created Authentication DTOs under `BeeMart.Api/Models/DTOs/Auth/` matching `PRD.md` Section 6.2:
+  - `LoginRequest.cs`: `Username`, `Password`, `Role`.
+  - `LoginResponse.cs`: `IdUser`, `Username`, `FullName`, `Role`, `Token`.
+  - `RegisterRequest.cs`: `Username`, `FullName`, `Password`, `RePassword`, `Role`.
+  - `RegisterResponse.cs`: `IdUser`, `Username`, `FullName`, `Role`.
+- Created `AuthController` (`BeeMart.Api/Controllers/AuthController.cs`) decorated with `[ApiController]`, `[Route("api/v1/auth")]`, and `[AllowAnonymous]`, injecting `BeeMartDbContext`, `IPasswordHasher`, and `IJwtTokenService`:
+  - **`POST /api/v1/auth/register` (`API-AUTH-02`)**:
+    - Validates all required fields (`Username`, `FullName`, `Password`, `RePassword`, `Role`).
+    - Validates `Password == RePassword` (returns HTTP 400 with `"Password and confirmation password do not match"` on mismatch).
+    - Validates `Role` is strictly `"Admin"` or `"Cashier"` (returns HTTP 400 with `"Role must be either Admin or Cashier"` on invalid role).
+    - Performs case-insensitive username conflict check on `MsUser` (returns HTTP 400 with exact message `"username has already exists"` on duplicate).
+    - Generates a unique 5-digit numeric `IdUser` string formatted with `D5` (finds max numeric `IdUser` in `MsUser`, increments by 1, e.g. `"78887"` after seeded max `"78886"`, with collision fallback).
+    - Hashes password via `IPasswordHasher.HashPassword`, sets audit fields (`Stsrc = true`, `DateIn = DateTime.Now`, `UserIn = request.Username`, `Dateup = null`, `Userup = null`), persists to `dbo.MsUser`, and returns **HTTP 201 Created** with `ApiResponse<RegisterResponse>.Success(data, "Account registered successfully")`.
+  - **`POST /api/v1/auth/login` (`API-AUTH-01`)**:
+    - Validates required fields (`Username`, `Password`, `Role`).
+    - Queries active user (`Stsrc == true`), checks role match and `IPasswordHasher.VerifyPassword(request.Password, user.PasswordHash)`, returning **HTTP 401 Unauthorized** with exact message `"Invalid login"` on any mismatch.
+    - Generates JWT bearer token via `IJwtTokenService.GenerateToken(user)` and returns **HTTP 200 OK** with `ApiResponse<LoginResponse>.Success(data)`.
+
+### Configured
+- Updated `BeeMart.Api/Program.cs` to configure `SuppressModelStateInvalidFilter = true` on `AddControllers()` so missing/empty fields are uniformly handled by controller validation and returned using the standard `ApiResponse` JSON wrapper.
+
+### Verified
+- Executed `dotnet build BeeMart.sln`: succeeded with `0 Warning(s)` and `0 Error(s)`.
+- Executed live HTTP smoke tests against `https://localhost:7001/api/v1/auth/register` and `https://localhost:7001/api/v1/auth/login` verifying HTTP 201 registration (`idUser = "78887"`), HTTP 400 duplicate username (`"username has already exists"`), HTTP 400 password mismatch and invalid role, HTTP 200 login with valid JWT token, and HTTP 401 wrong password/role (`"Invalid login"`), followed by test user cleanup.
+- Updated `STRUCTURE.md`, `OPEN-ITEMS.md`, and `CHANGELOG.md`.
+
+---
+
+## [Phase 5] - 2026-10-20 — Backend Foundations
+
+### Added
+- Added NuGet packages to `BeeMart.Api/BeeMart.Api.csproj` (pinned to .NET 8 compatible stable versions):
+  - `BCrypt.Net-Next` (`4.0.3`)
+  - `Microsoft.AspNetCore.Authentication.JwtBearer` (`8.0.13`)
+- Created standard JSON response wrapper `BeeMart.Api/Common/ApiResponse.cs`:
+  - Implemented `ApiResponse<T>` and non-generic `ApiResponse` with `"status"` (`"success"` or `"error"`), `"message"` (`[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]`), and `"data"` (`[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]`) matching `PRD.md` Section 6.2.
+  - Added static factory methods `ApiResponse<T>.Success(T data, string? message = null)`, `ApiResponse<T>.Error(string message)`, `ApiResponse.Success(string? message = null)`, `ApiResponse.Success<T>(T data, string? message = null)`, and `ApiResponse.Error(string message)`.
+- Created BCrypt password hasher `BeeMart.Api/Common/PasswordHasher.cs`:
+  - Implemented `IPasswordHasher` and `PasswordHasher` wrapping `BCrypt.Net.BCrypt` with work factor `11` (`HashPassword(string password)` and safe `VerifyPassword(string password, string hash)` handling null/whitespace and malformed salts without throwing unhandled exceptions).
+- Created JWT token generator `BeeMart.Api/Common/JwtTokenService.cs`:
+  - Implemented `IJwtTokenService` and `JwtTokenService` signing tokens with `SecurityAlgorithms.HmacSha256`.
+  - Embedded both standard ASP.NET Core claims and custom BeeMart claims: `ClaimTypes.NameIdentifier` + `"idUser"`, `ClaimTypes.Name` + `"username"`, `"fullName"`, and `ClaimTypes.Role` + `"role"`.
+  - Configured token lifetime from `JwtSettings:ExpiryMinutes` (default `1440` minutes = 24 hours).
+- Created user claims helper `BeeMart.Api/Common/ClaimsHelper.cs`:
+  - Implemented `ClaimsPrincipal` extension methods: `GetUserId()`, `GetUsername()`, `GetFullName()`, `GetRole()`, `IsAdmin()`, and `IsCashier()`.
+
+### Configured
+- Added `JwtSettings` section (`SecretKey`, `Issuer = "BeeMartApi"`, `Audience = "BeeMartApp"`, `ExpiryMinutes = 1440`) to `BeeMart.Api/appsettings.json`.
+- Updated `BeeMart.Api/Program.cs` to register `IPasswordHasher` and `IJwtTokenService` in DI, configure JWT Bearer authentication (`JwtBearerDefaults.AuthenticationScheme` with Issuer, Audience, Lifetime, and IssuerSigningKey validation), and register `app.UseAuthentication()` before `app.UseAuthorization()`.
+
+### Verified
+- Executed `dotnet build BeeMart.sln`: succeeded with `0 Warning(s)` and `0 Error(s)`.
+- Executed live Phase 5 foundations verification tests confirming `ApiResponse` JSON output format, `PasswordHasher` hashing & verification (including against seeded `steven` hash from `Database/BeeMart.sql`), and `JwtTokenService` + `ClaimsHelper` token generation, validation, and claim extraction.
+- Updated `STRUCTURE.md`, `OPEN-ITEMS.md`, and `CHANGELOG.md`.
 
 ---
 

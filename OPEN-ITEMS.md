@@ -31,15 +31,15 @@ Daftar *to-do* dan status pengerjaan proyek **BeeMart POS Web App** berdasarkan 
 - [x] Create `BeeMartDbContext` with Fluent API configurations matching the SQL schema and register it in `BeeMart.Api/Program.cs` using `DefaultConnection` (and update `DefaultConnection` in `BeeMart.Api/appsettings.json` to `localhost\SQLEXPRESS`).
 
 ### Phase 5: Backend Foundations
-- [ ] Implement standard JSON response wrapper (`status`, `message`, `data`) and `/api/v1` routing convention.
-- [ ] Add `BCrypt.Net-Next` to `BeeMart.Api` and implement password hasher & verifier (`PasswordHash`).
-- [ ] Implement JWT token generation, authentication/authorization middleware, and claims helper (`IdUser`, `Username`, `FullName`, `Role`).
+- [x] Implement standard JSON response wrapper (`status`, `message`, `data`) and `/api/v1` routing convention.
+- [x] Add `BCrypt.Net-Next` to `BeeMart.Api` and implement password hasher & verifier (`PasswordHash`).
+- [x] Implement JWT token generation, authentication/authorization middleware, and claims helper (`IdUser`, `Username`, `FullName`, `Role`).
 
 ### Phase 6: Backend Auth Endpoints
-- [ ] Implement `POST /api/v1/auth/register` (validate required fields, password match, role, case-insensitive unique username with `"username has already exists"`, generate 5-digit `IdUser`, hash password).
-- [ ] Implement `POST /api/v1/auth/login` (validate credentials & role against active `MsUser` records, return `"Invalid login"` on mismatch, issue JWT token on success).
+- [x] Implement `POST /api/v1/auth/register` (validate required fields, password match, role, case-insensitive unique username with `"username has already exists"`, generate 5-digit `IdUser`, hash password).
+- [x] Implement `POST /api/v1/auth/login` (validate credentials & role against active `MsUser` records, return `"Invalid login"` on mismatch, issue JWT token on success).
 
-### Phase 7: Backend Master Data Endpoints
+### Phase 7: Backend Master Data Endpoints (Next Open Phase)
 - [ ] Implement `GET /api/v1/payment-methods` (fetch active payment methods from `LtPaymentMethod`).
 - [ ] Implement `GET /api/v1/products/search?keyword=...` (search active products in `MsProduct` by name, limited to max 10 items).
 
@@ -83,7 +83,7 @@ Daftar *to-do* dan status pengerjaan proyek **BeeMart POS Web App** berdasarkan 
 
 ---
 
-## 3. Notes / Decisions / Blockers (Assumptions Recorded in Phases 1–4)
+## 3. Notes / Decisions / Blockers (Assumptions Recorded in Phases 1–6)
 
 1. **WebClient Project Template Choice (`ASP.NET Core Razor Pages`)**:
    - Sesuai `NFR-TECH-002` dan instruksi Phase 1 Task 3 (*"ASP.NET Core Razor Pages or MVC, net8.0"*), proyek `BeeMart.Web` dibuat menggunakan template **ASP.NET Core Razor Pages** karena sangat selaras dengan pembagian fase berbasis halaman (*Phase 11: Auth Pages*, *Phase 12: Shared Layout*, *Phase 13: New Transaction Page*, *Phase 14: History Page*).
@@ -117,3 +117,11 @@ Daftar *to-do* dan status pengerjaan proyek **BeeMart POS Web App** berdasarkan 
    - **Explicit Decimal Precision**: Seluruh properti `decimal` dikonfigurasi secara eksplisit di `OnModelCreating` untuk mencegah *truncation warning* EF Core: `HasPrecision(10, 2)` untuk `MsProduct.Weight`, `HasPrecision(18, 2)` untuk `MsProduct.Price`, `TrTransaction.TotalPrice`, `TrTransactionDetail.Price`, dan `TrTransactionDetail.SubTotal`, serta `HasPrecision(5, 2)` untuk `MsProduct.Discount` dan `TrTransactionDetail.Discount`.
    - **Foreign Key Delete Behavior (`DeleteBehavior.Restrict`)**: Keempat relasi *foreign key* (`FK_TrTransaction_MsUser`, `FK_TrTransaction_LtPaymentMethod`, `FK_TrTransactionDetail_TrTransaction`, `FK_TrTransactionDetail_MsProduct`) dikonfigurasi menggunakan `DeleteBehavior.Restrict` agar selaras dengan aturan `NO ACTION` / *soft-delete* (`Stsrc = 1`) di database.
    - **Connection String Update & Live Verification**: `ConnectionStrings:DefaultConnection` pada `BeeMart.Api/appsettings.json` telah diperbarui menjadi `"Server=localhost\\SQLEXPRESS;Database=BeeMart;Trusted_Connection=True;TrustServerCertificate=True;"`, didaftarkan melalui `AddDbContext<BeeMartDbContext>` di `BeeMart.Api/Program.cs`, dan diverifikasi secara langsung terhadap database `BeeMart` (`PaymentMethods.Count() = 3`, `Users.Count() = 6`, `Products.Count() = 22`).
+9. **Phase 5 Backend Foundations Decisions (Response Wrapper, BCrypt, JWT & Claims)**:
+   - **Standard JSON Response Wrapper (`ApiResponse<T>` & `ApiResponse`)**: Properti `Message` dan `Data` menggunakan atribut `[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]` sehingga serialisasi JSON sesuai persis dengan contoh `PRD.md` Section 6.2 (respons sukses tanpa pesan hanya memuat `"status"` dan `"data"`, respons sukses dengan pesan memuat `"status"`, `"message"`, dan `"data"`, sedangkan respons error hanya memuat `"status": "error"` dan `"message"`).
+   - **Dual JWT Claim Mapping (`JwtTokenService` & `ClaimsHelper`)**: Token JWT menyertakan klaim kustom eksplisit (`"idUser"`, `"username"`, `"fullName"`, `"role"`) sekaligus klaim standar .NET (`ClaimTypes.NameIdentifier`, `ClaimTypes.Name`, `ClaimTypes.Role`). Hal ini memastikan atribut `[Authorize(Roles = "Admin,Cashier")]` dan `User.Identity.Name` bawaan ASP.NET Core bekerja otomatis, sementara `ClaimsHelper` (`GetUserId()`, `GetUsername()`, `GetFullName()`, `GetRole()`, `IsAdmin()`, `IsCashier()`) dapat mengekstrak keempat klaim pengguna secara konsisten.
+   - **Token Lifetime & Validation**: Durasi token JWT dikonfigurasi melalui `JwtSettings:ExpiryMinutes` di `BeeMart.Api/appsettings.json` dengan nilai default `1440` menit (24 jam) menggunakan algoritma HMAC-SHA256 (`SecurityAlgorithms.HmacSha256`) dan divalidasi secara penuh (`ValidateIssuer`, `ValidateAudience`, `ValidateLifetime`, `ValidateIssuerSigningKey`, `ClockSkew = TimeSpan.Zero`) pada pipeline `UseAuthentication()` di `BeeMart.Api/Program.cs`.
+10. **Phase 6 Backend Authentication Endpoints Decisions (`AuthController`, 5-Digit `IdUser` Generator & Validation)**:
+    - **5-Digit `IdUser` Generation Strategy (`GenerateNextUserIdAsync`)**: Saat registrasi user baru pada `POST /api/v1/auth/register`, sistem mengambil seluruh nilai `IdUser` dari tabel `MsUser`, mem-parsing nilai numerik, mencari nilai maksimum saat ini (`< 99999`), menambahkan `+ 1`, dan memformatnya dengan `D5` (contoh: setelah user *seed* tertinggi `78886` milik `felix`, user baru berikutnya mendapat `"78887"`). Terdapat pula *fallback loop* (`00001`–`99999`) berbasis `HashSet` untuk menjamin tidak pernah terjadi bentrokan primary key meskipun `IdUser` mencapai batas atas.
+    - **Case-Insensitive Username Uniqueness & Exact Error Messages**: Validasi keunikan `Username` dilakukan secara *case-insensitive* (`u.Username.ToLower() == trimmedUsername.ToLower()`) dan mengembalikan **HTTP 400 Bad Request** dengan pesan persis `"username has already exists"`. Ketidakcocokan konfirmasi password mengembalikan `"Password and confirmation password do not match"`, role di luar `"Admin"` / `"Cashier"` mengembalikan `"Role must be either Admin or Cashier"`, dan kegagalan login (user tidak ditemukan / tidak aktif `Stsrc == false` / role tidak sesuai / verifikasi BCrypt gagal) mengembalikan **HTTP 401 Unauthorized** dengan pesan persis `"Invalid login"`.
+    - **Custom Validation Wrapper Consistency (`SuppressModelStateInvalidFilter = true`)**: Pada `BeeMart.Api/Program.cs`, opsi `SuppressModelStateInvalidFilter = true` diaktifkan pada `AddControllers()` agar request dengan properti kosong/null tidak diinterupsi oleh format default `ValidationProblemDetails` ASP.NET Core, melainkan selalu divalidasi oleh controller dan dikembalikan dalam format `ApiResponse.Error(...)`.

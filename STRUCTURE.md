@@ -24,7 +24,7 @@ flowchart LR
 
 ## 2. Directory Tree
 
-Item yang sudah dibuat pada **Phase 1–3** (beserta *repository housekeeping*) ditandai sebagai **Active**, sedangkan item untuk fase berikutnya ditandai sebagai **Planned (Phase X)**.
+Item yang sudah dibuat pada **Phase 1–4** (beserta *repository housekeeping*) ditandai sebagai **Active**, sedangkan item untuk fase berikutnya ditandai sebagai **Planned (Phase X)**.
 
 ```text
 BeeMart/
@@ -33,16 +33,16 @@ BeeMart/
 ├── README.md                                        [Active - Repo Housekeeping]
 ├── BeeMart.sln                                      [Active - Phase 1]
 ├── PRD.md                                           [Active - Phase 0/1]
-├── STRUCTURE.md                                     [Active - Phase 1-3]
-├── CHANGELOG.md                                     [Active - Phase 1-3]
-├── OPEN-ITEMS.md                                    [Active - Phase 1-3]
+├── STRUCTURE.md                                     [Active - Phase 1-4]
+├── CHANGELOG.md                                     [Active - Phase 1-4]
+├── OPEN-ITEMS.md                                    [Active - Phase 1-4]
 ├── Database/                                        [Active - Phase 1]
 │   ├── .gitkeep                                     [Active - Phase 1]
 │   └── BeeMart.sql                                  [Active - Phase 2 (DDL) & Phase 3 (Seed DML)]
 ├── BeeMart.Api/                                     [Active - Phase 1]
 │   ├── BeeMart.Api.csproj                           [Active - Phase 1]
-│   ├── Program.cs                                   [Active - Phase 1]
-│   ├── appsettings.json                             [Active - Phase 1]
+│   ├── Program.cs                                   [Active - Phase 1 & Phase 4]
+│   ├── appsettings.json                             [Active - Phase 1 & Phase 4]
 │   ├── appsettings.Development.json                 [Active - Phase 1]
 │   ├── Properties/
 │   │   └── launchSettings.json                      [Active - Phase 1]
@@ -52,15 +52,15 @@ BeeMart/
 │   │   ├── ProductsController.cs                    [Planned (Phase 7)]
 │   │   ├── PaymentMethodsController.cs              [Planned (Phase 7)]
 │   │   └── TransactionsController.cs                [Planned (Phase 8-9)]
-│   ├── Data/                                        [Planned (Phase 4)]
-│   │   └── BeeMartDbContext.cs                      [Planned (Phase 4)]
-│   ├── Models/                                      [Planned (Phase 4)]
-│   │   ├── Entities/                                [Planned (Phase 4)]
-│   │   │   ├── MsUser.cs                            [Planned (Phase 4)]
-│   │   │   ├── LtPaymentMethod.cs                   [Planned (Phase 4)]
-│   │   │   ├── MsProduct.cs                         [Planned (Phase 4)]
-│   │   │   ├── TrTransaction.cs                     [Planned (Phase 4)]
-│   │   │   └── TrTransactionDetail.cs               [Planned (Phase 4)]
+│   ├── Data/                                        [Active - Phase 4]
+│   │   └── BeeMartDbContext.cs                      [Active - Phase 4]
+│   ├── Models/                                      [Active - Phase 4]
+│   │   ├── Entities/                                [Active - Phase 4]
+│   │   │   ├── MsUser.cs                            [Active - Phase 4]
+│   │   │   ├── LtPaymentMethod.cs                   [Active - Phase 4]
+│   │   │   ├── MsProduct.cs                         [Active - Phase 4]
+│   │   │   ├── TrTransaction.cs                     [Active - Phase 4]
+│   │   │   └── TrTransactionDetail.cs               [Active - Phase 4]
 │   │   └── DTOs/                                    [Planned (Phase 5-9)]
 │   └── Common/                                      [Planned (Phase 5)]
 │       ├── ApiResponse.cs                           [Planned (Phase 5)]
@@ -105,7 +105,7 @@ BeeMart/
 
 ---
 
-## 3. Detailed Inventory of Existing Folders & Files (Phase 1–3)
+## 3. Detailed Inventory of Existing Folders & Files (Phase 1–4)
 
 ### 3.1 Solution Root (`BeeMart/`)
 | Path | Project / Scope | Purpose (Fungsi) | Connections & Dependencies |
@@ -120,17 +120,23 @@ BeeMart/
 | `OPEN-ITEMS.md` | Solution Root | Daftar *checklist* tugas per fase (Phase 1–15), *checklist* pemeliharaan repositori, serta catatan keputusan/asumsi teknis. | Berhubungan dengan rencana pengerjaan di `PRD.md` dan `CHANGELOG.md`. |
 | `Database/` | Solution Root | Direktori khusus penyimpanan script SQL database (`DELIV-004`). | Menampung `Database/BeeMart.sql` dan `Database/.gitkeep`. |
 | `Database/.gitkeep` | Solution Root | Penanda agar folder `Database/` tetap terlacak di Git. | Dipertahankan di dalam folder `Database/` bersama `Database/BeeMart.sql`. |
-| `Database/BeeMart.sql` | Solution Root (`Database/`) | Script T-SQL SQL Server *idempotent* (re-runnable) berisi: (1) **Phase 2 DDL** pembuatan database `BeeMart`, 5 tabel (`LtPaymentMethod`, `MsUser`, `MsProduct`, `TrTransaction`, `TrTransactionDetail`), 4 indeks Section 5.4, serta *primary key*, *foreign key*, *unique*, *check*, dan *default constraints* bernama eksplisit; dan (2) **Phase 3 DML Seed Data** berpelindung `IF NOT EXISTS` / `WHERE NOT EXISTS` untuk 3 metode pembayaran (`LtPaymentMethod`), 6 pengguna dengan *BCrypt password hash* (`MsUser`), dan 22 produk dengan GUID tetap (`MsProduct`: 12 produk `Apel`, 4 produk `Susu`, 6 produk sembako lainnya) (`DELIV-004`). | Dieksekusi secara manual di SQL Server (`sqlcmd` / SSMS), dan skema serta data awalnya akan digunakan oleh model EF Core (`BeeMartDbContext` & entitas) di `BeeMart.Api` mulai Phase 4. |
+| `Database/BeeMart.sql` | Solution Root (`Database/`) | Script T-SQL SQL Server *idempotent* (re-runnable) berisi: (1) **Phase 2 DDL** pembuatan database `BeeMart`, 5 tabel (`LtPaymentMethod`, `MsUser`, `MsProduct`, `TrTransaction`, `TrTransactionDetail`), 4 indeks Section 5.4, serta *primary key*, *foreign key*, *unique*, *check*, dan *default constraints* bernama eksplisit; dan (2) **Phase 3 DML Seed Data** berpelindung `IF NOT EXISTS` / `WHERE NOT EXISTS` untuk 3 metode pembayaran (`LtPaymentMethod`), 6 pengguna dengan *BCrypt password hash* (`MsUser`), dan 22 produk dengan GUID tetap (`MsProduct`: 12 produk `Apel`, 4 produk `Susu`, 6 produk sembako lainnya) (`DELIV-004`). | Dieksekusi di SQL Server (`localhost\SQLEXPRESS`), dan skema serta data awalnya dipetakan secara presisi oleh `BeeMartDbContext` beserta 5 entitas EF Core di `BeeMart.Api` (Phase 4). |
 
 ### 3.2 Backend API Project (`BeeMart.Api/`)
 | Path | Project | Purpose (Fungsi) | Connections & Dependencies |
 | :--- | :--- | :--- | :--- |
 | `BeeMart.Api/` | `BeeMart.Api` | Folder utama proyek Backend RESTful API (`DELIV-002`, `NFR-ARCH-001`). | Terdaftar di `BeeMart.sln`; dipanggil oleh `BeeMart.Web` melalui HTTP JSON. |
 | `BeeMart.Api/BeeMart.Api.csproj` | `BeeMart.Api` | File definisi proyek C# (`Microsoft.NET.Sdk.Web`) dengan target `net8.0`. | Memuat referensi paket NuGet EF Core 8 (`Microsoft.EntityFrameworkCore.SqlServer`, `.Design`, `.Tools` v8.0.32). |
-| `BeeMart.Api/Program.cs` | `BeeMart.Api` | Titik masuk (*entry point*) aplikasi Backend API, konfigurasi DI container (`AddControllers`), dan pipeline HTTP middleware. | Membaca konfigurasi dari `BeeMart.Api/appsettings.json` dan memetakan route ke `Controllers/`. |
-| `BeeMart.Api/appsettings.json` | `BeeMart.Api` | File konfigurasi utama Backend API yang menyimpan connection string SQL Server `DefaultConnection`. | Akan dibaca oleh `Program.cs` dan `BeeMartDbContext` (Planned Phase 4) untuk terhubung ke database SQL Server `BeeMart`. |
+| `BeeMart.Api/Program.cs` | `BeeMart.Api` | Titik masuk (*entry point*) aplikasi Backend API, registrasi `BeeMartDbContext` (`UseSqlServer("DefaultConnection")`), konfigurasi DI container (`AddControllers`), dan pipeline HTTP middleware. | Membaca konfigurasi `DefaultConnection` dari `BeeMart.Api/appsettings.json`, mendaftarkan `BeeMartDbContext`, dan memetakan route ke `Controllers/`. |
+| `BeeMart.Api/appsettings.json` | `BeeMart.Api` | File konfigurasi utama Backend API yang menyimpan connection string SQL Server `DefaultConnection` (`Server=localhost\SQLEXPRESS;Database=BeeMart;Trusted_Connection=True;TrustServerCertificate=True;`). | Dibaca oleh `Program.cs` untuk menginisialisasi `BeeMartDbContext` ke instance SQL Server lokal `localhost\SQLEXPRESS`. |
 | `BeeMart.Api/appsettings.Development.json` | `BeeMart.Api` | Konfigurasi spesifik environment `Development` (level logging). | Meng-override `BeeMart.Api/appsettings.json` saat `ASPNETCORE_ENVIRONMENT=Development`. |
 | `BeeMart.Api/Properties/launchSettings.json` | `BeeMart.Api` | Pengaturan profil eksekusi lokal dan port tetap Backend API (`https://localhost:7001`, `http://localhost:5001`). | Port `https://localhost:7001` disinkronkan dengan `ApiSettings:BaseUrl` pada `BeeMart.Web/appsettings.json`. |
+| `BeeMart.Api/Data/BeeMartDbContext.cs` | `BeeMart.Api` | Kelas `DbContext` EF Core (`BeeMartDbContext`) yang mengekspos `DbSet` (`Users`, `PaymentMethods`, `Products`, `Transactions`, `TransactionDetails`) dan mengonfigurasi pemetaan tabel, tipe data/presisi `decimal`, batas panjang `NVARCHAR`, indeks unik/non-unik, serta relasi *foreign key* (`DeleteBehavior.Restrict`) melalui Fluent API di `OnModelCreating`. | Diregistrasikan di `BeeMart.Api/Program.cs` dan memetakan 5 kelas entitas di `BeeMart.Api/Models/Entities/` ke skema SQL `Database/BeeMart.sql`. |
+| `BeeMart.Api/Models/Entities/MsUser.cs` | `BeeMart.Api` | Entitas POCO untuk tabel `dbo.MsUser` (`IdUser`, `Username`, `FullName`, `PasswordHash`, `Role`, kolom audit `Stsrc`/`DateIn`/`UserIn`/`Dateup`/`Userup`, dan koleksi navigasi `Transactions`). | Dipetakan oleh `BeeMartDbContext`; berelasi `1:N` dengan `TrTransaction`. |
+| `BeeMart.Api/Models/Entities/LtPaymentMethod.cs` | `BeeMart.Api` | Entitas POCO untuk tabel `dbo.LtPaymentMethod` (`IdPaymentMethod`, `MethodName`, kolom audit, dan koleksi navigasi `Transactions`). | Dipetakan oleh `BeeMartDbContext`; berelasi `1:N` dengan `TrTransaction`. |
+| `BeeMart.Api/Models/Entities/MsProduct.cs` | `BeeMart.Api` | Entitas POCO untuk tabel `dbo.MsProduct` (`IdProduct`, `Name`, `Weight`, `Stock`, `Price`, `Discount`, kolom audit, dan koleksi navigasi `TransactionDetails`). | Dipetakan oleh `BeeMartDbContext`; berelasi `1:N` dengan `TrTransactionDetail`. |
+| `BeeMart.Api/Models/Entities/TrTransaction.cs` | `BeeMart.Api` | Entitas POCO untuk tabel header transaksi `dbo.TrTransaction` (`IdTransaction`, `InvoiceNo`, `TransactionDate`, `IdUser`, `IdPaymentMethod`, properti `[NotMapped] TotalItem`, `TotalPrice`, kolom audit, serta navigasi `User`, `PaymentMethod`, dan `TransactionDetails`). | Dipetakan oleh `BeeMartDbContext`; berelasi `N:1` ke `MsUser` & `LtPaymentMethod`, serta `1:N` ke `TrTransactionDetail`. |
+| `BeeMart.Api/Models/Entities/TrTransactionDetail.cs` | `BeeMart.Api` | Entitas POCO untuk tabel rincian transaksi `dbo.TrTransactionDetail` (`IdTransactionDetail`, `IdTransaction`, `IdProduct`, `Qty`, `Price`, `Discount`, `SubTotal`, kolom audit, serta navigasi `Transaction` dan `Product`). | Dipetakan oleh `BeeMartDbContext`; berelasi `N:1` ke `TrTransaction` dan `MsProduct`. |
 | `BeeMart.Api/Controllers/` | `BeeMart.Api` | Direktori untuk menyimpan kelas-kelas API Controller ber-versioning `/api/v1/...`. | Dipetakan oleh `app.MapControllers()` di `BeeMart.Api/Program.cs`. |
 | `BeeMart.Api/Controllers/.gitkeep` | `BeeMart.Api` | Penanda agar direktori `Controllers/` tetap ada setelah penghapusan *boilerplate* `WeatherForecastController.cs`. | Akan digantikan oleh controller fitur pada Phase 6–9. |
 
@@ -159,12 +165,10 @@ BeeMart/
 
 ---
 
-## 4. Planned Items by Phase (Phase 4 – Phase 15)
+## 4. Planned Items by Phase (Phase 5 – Phase 15)
 
 | Planned Path | Target Project / Folder | Planned Phase | Purpose |
 | :--- | :--- | :---: | :--- |
-| `BeeMart.Api/Models/Entities/*.cs` | `BeeMart.Api` | Phase 4 | Kelas entitas EF Core (`MsUser`, `LtPaymentMethod`, `MsProduct`, `TrTransaction`, `TrTransactionDetail`). |
-| `BeeMart.Api/Data/BeeMartDbContext.cs` | `BeeMart.Api` | Phase 4 | Kelas `DbContext` EF Core yang memetakan kelima tabel dan konfigurasi indeks/relasi SQL Server. |
 | `BeeMart.Api/Common/*` | `BeeMart.Api` | Phase 5 | Standar pembungkus respons JSON (`ApiResponse`), password hasher (`BCrypt.Net-Next`), JWT generator/middleware, dan helper ekstraksi klaim user. |
 | `BeeMart.Api/Controllers/AuthController.cs` | `BeeMart.Api` | Phase 6 | Endpoint `/api/v1/auth/login` dan `/api/v1/auth/register`. |
 | `BeeMart.Api/Controllers/PaymentMethodsController.cs` & `ProductsController.cs` | `BeeMart.Api` | Phase 7 | Endpoint `/api/v1/payment-methods` dan `/api/v1/products/search`. |

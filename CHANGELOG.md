@@ -8,7 +8,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
-- **Phase 4**: EF Core Entities & `BeeMartDbContext`.
 - **Phase 5**: Backend Foundations (JSON response wrapper, `/api/v1` versioning, password hasher, JWT authentication, claims helper).
 - **Phase 6**: Backend Auth Endpoints (`POST /api/v1/auth/register`, `POST /api/v1/auth/login`).
 - **Phase 7**: Backend Master Data Endpoints (`GET /api/v1/payment-methods`, `GET /api/v1/products/search`).
@@ -20,6 +19,33 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - **Phase 13**: WebClient New Transaction Page.
 - **Phase 14**: WebClient History Page (`Cashier` & `Admin` modes).
 - **Phase 15**: Final Checks & Delivery verification.
+
+---
+
+## [Phase 4] - 2026-10-20 — EF Core Entities & DbContext
+
+### Added
+- Created 5 Entity Framework Core POCO entity classes under `BeeMart.Api/Models/Entities/` matching `Database/BeeMart.sql` and `PRD.md` Section 5.1:
+  1. **`MsUser` (`BeeMart.Api/Models/Entities/MsUser.cs`)**: `IdUser` (`string`, PK), `Username`, `FullName`, `PasswordHash`, `Role`, audit columns (`Stsrc`, `DateIn`, `UserIn`, `Dateup`, `Userup`), and navigation `ICollection<TrTransaction> Transactions`.
+  2. **`LtPaymentMethod` (`BeeMart.Api/Models/Entities/LtPaymentMethod.cs`)**: `IdPaymentMethod` (`int`, PK, Identity), `MethodName`, audit columns, and navigation `ICollection<TrTransaction> Transactions`.
+  3. **`MsProduct` (`BeeMart.Api/Models/Entities/MsProduct.cs`)**: `IdProduct` (`string`, PK), `Name`, `Weight`, `Stock`, `Price`, `Discount`, audit columns, and navigation `ICollection<TrTransactionDetail> TransactionDetails`.
+  4. **`TrTransaction` (`BeeMart.Api/Models/Entities/TrTransaction.cs`)**: `IdTransaction` (`string`, PK), `InvoiceNo`, `TransactionDate`, `IdUser` (FK), `IdPaymentMethod` (FK), `[NotMapped] TotalItem` (ignored in SQL mapping as `dbo.TrTransaction` stores item counts on `TrTransactionDetail.Qty`), `TotalPrice`, audit columns, and navigation properties (`MsUser User`, `LtPaymentMethod PaymentMethod`, `ICollection<TrTransactionDetail> TransactionDetails`).
+  5. **`TrTransactionDetail` (`BeeMart.Api/Models/Entities/TrTransactionDetail.cs`)**: `IdTransactionDetail` (`string`, PK), `IdTransaction` (FK), `IdProduct` (FK), `Qty`, `Price`, `Discount`, `SubTotal`, audit columns, and navigation properties (`TrTransaction Transaction`, `MsProduct Product`).
+- Created `BeeMartDbContext` (`BeeMart.Api/Data/BeeMartDbContext.cs`) inheriting from `DbContext` with `DbSet` properties (`Users`, `PaymentMethods`, `Products`, `Transactions`, `TransactionDetails`) and comprehensive Fluent API configurations in `OnModelCreating`:
+  - Explicit table names (`MsUser`, `LtPaymentMethod`, `MsProduct`, `TrTransaction`, `TrTransactionDetail`) and primary key constraint names (`PK_*`).
+  - Explicit decimal precisions: `HasPrecision(10, 2)` (`MsProduct.Weight`), `HasPrecision(18, 2)` (`MsProduct.Price`, `TrTransaction.TotalPrice`, `TrTransactionDetail.Price`, `TrTransactionDetail.SubTotal`), and `HasPrecision(5, 2)` (`MsProduct.Discount`, `TrTransactionDetail.Discount`).
+  - Explicit string key & column max lengths matching SQL DDL (`HasMaxLength(5)` on `IdUser`, `HasMaxLength(36)` on GUID keys and `UserIn`/`Userup`, `HasMaxLength(50)` on `Username` and `MethodName`, `HasMaxLength(300)` on `FullName`, `HasMaxLength(255)` on `PasswordHash`, `HasMaxLength(20)` on `Role` and `InvoiceNo`, `HasMaxLength(100)` on `MsProduct.Name`).
+  - Configured all 5 indexes & unique constraints: `UQ_MsUser_Username` (`IsUnique()`), `UQ_LtPaymentMethod_MethodName` (`IsUnique()`), `UQ_TrTransaction_InvoiceNo` (`IsUnique()`), `IX_TrTransaction_TransactionDate_IdUser`, and `IX_MsProduct_Name`.
+  - Configured all 4 foreign key relationships (`FK_TrTransaction_MsUser`, `FK_TrTransaction_LtPaymentMethod`, `FK_TrTransactionDetail_TrTransaction`, `FK_TrTransactionDetail_MsProduct`) with `DeleteBehavior.Restrict` to enforce the `Stsrc` soft-delete rule.
+
+### Configured
+- Updated `ConnectionStrings:DefaultConnection` in `BeeMart.Api/appsettings.json` to `"Server=localhost\\SQLEXPRESS;Database=BeeMart;Trusted_Connection=True;TrustServerCertificate=True;"`.
+- Registered `BeeMartDbContext` in `BeeMart.Api/Program.cs` using `options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))`.
+
+### Verified
+- Executed `dotnet build BeeMart.sln`: succeeded with `0 Warning(s)` and `0 Error(s)`.
+- Executed live EF Core database connectivity and entity mapping verification against `localhost\SQLEXPRESS` (`Database=BeeMart`): confirmed `CanConnect = True`, `PaymentMethods.Count() = 3`, `Users.Count() = 6`, `Products.Count() = 22`, and verified `Include`/`ThenInclude` queries across all foreign keys and navigation properties with 0 model validation or SQL mapping errors.
+- Updated `STRUCTURE.md`, `OPEN-ITEMS.md`, and `CHANGELOG.md`.
 
 ---
 

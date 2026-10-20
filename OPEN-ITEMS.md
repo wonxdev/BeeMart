@@ -27,8 +27,8 @@ Daftar *to-do* dan status pengerjaan proyek **BeeMart POS Web App** berdasarkan 
 - [x] Combine all DDL and DML into a single executable, re-runnable SQL script (`Database/BeeMart.sql`) and verify execution twice against `localhost\SQLEXPRESS`.
 
 ### Phase 4: EF Core Entities & DbContext
-- [ ] Create entity classes for `MsUser`, `LtPaymentMethod`, `MsProduct`, `TrTransaction`, and `TrTransactionDetail` in `BeeMart.Api`.
-- [ ] Create `BeeMartDbContext` with Fluent API configurations matching the SQL schema and register it in `BeeMart.Api/Program.cs` using `DefaultConnection` (and update `DefaultConnection` in `BeeMart.Api/appsettings.json` to `localhost\SQLEXPRESS`).
+- [x] Create entity classes for `MsUser`, `LtPaymentMethod`, `MsProduct`, `TrTransaction`, and `TrTransactionDetail` in `BeeMart.Api`.
+- [x] Create `BeeMartDbContext` with Fluent API configurations matching the SQL schema and register it in `BeeMart.Api/Program.cs` using `DefaultConnection` (and update `DefaultConnection` in `BeeMart.Api/appsettings.json` to `localhost\SQLEXPRESS`).
 
 ### Phase 5: Backend Foundations
 - [ ] Implement standard JSON response wrapper (`status`, `message`, `data`) and `/api/v1` routing convention.
@@ -83,7 +83,7 @@ Daftar *to-do* dan status pengerjaan proyek **BeeMart POS Web App** berdasarkan 
 
 ---
 
-## 3. Notes / Decisions / Blockers (Assumptions Recorded in Phases 1–3)
+## 3. Notes / Decisions / Blockers (Assumptions Recorded in Phases 1–4)
 
 1. **WebClient Project Template Choice (`ASP.NET Core Razor Pages`)**:
    - Sesuai `NFR-TECH-002` dan instruksi Phase 1 Task 3 (*"ASP.NET Core Razor Pages or MVC, net8.0"*), proyek `BeeMart.Web` dibuat menggunakan template **ASP.NET Core Razor Pages** karena sangat selaras dengan pembagian fase berbasis halaman (*Phase 11: Auth Pages*, *Phase 12: Shared Layout*, *Phase 13: New Transaction Page*, *Phase 14: History Page*).
@@ -110,3 +110,10 @@ Daftar *to-do* dan status pengerjaan proyek **BeeMart POS Web App** berdasarkan 
    - **Penambahan Paket `BCrypt.Net-Next` pada Phase 5**: Paket NuGet `BCrypt.Net-Next` **harus ditambahkan ke `BeeMart.Api` pada Phase 5** saat mengimplementasikan `PasswordHasher.cs` untuk verifikasi login (`BCrypt.Verify`) dan registrasi user baru (`BCrypt.HashPassword`).
    - **Penyesuaian Connection String ke `localhost\SQLEXPRESS` pada Phase 4**: Instance SQL Server lokal yang aktif pada mesin ini adalah `localhost\SQLEXPRESS`. Pada **Phase 4**, nilai `ConnectionStrings:DefaultConnection` di `BeeMart.Api/appsettings.json` perlu diubah dari `Server=localhost;...` menjadi `Server=localhost\\SQLEXPRESS;Database=BeeMart;Trusted_Connection=True;TrustServerCertificate=True;`.
    - **Fixed Product GUIDs & Pencarian > 10 Produk**: Seluruh 22 baris produk pada `MsProduct` menggunakan GUID statis (`a1b2c3d4-0001-4000-8000-000000000001` s/d `...0022`) agar konsisten dengan contoh JSON di `PRD.md` Section 6.2, mencakup 12 produk `Apel` (untuk menguji batas pencarian maksimal 10 data), 4 produk `Susu`, dan 6 produk kebutuhan pokok lainnya. Tabel `TrTransaction` dan `TrTransactionDetail` sengaja tidak di-*seed* karena transaksi dibuat melalui aplikasi.
+8. **Phase 4 EF Core Entities, Fluent API Mapping & Connection String Decisions**:
+   - **Exact Alignment with `Database/BeeMart.sql` & `PRD.md` Section 5.1**: Seluruh 5 entitas (`MsUser`, `LtPaymentMethod`, `MsProduct`, `TrTransaction`, `TrTransactionDetail`) dan `BeeMartDbContext` dikonfigurasi menggunakan Fluent API agar selaras 100% dengan DDL aktual di `Database/BeeMart.sql`:
+     - Panjang kolom string disesuaikan dengan DDL SQL Server: `IdUser` (`HasMaxLength(5)`), GUID PK/FK (`IdProduct`, `IdTransaction`, `IdTransactionDetail` dengan `HasMaxLength(36)`), `MsUser.FullName` (`HasMaxLength(300)`), `TrTransaction.InvoiceNo` (`HasMaxLength(20)`), serta kolom audit `UserIn` dan `Userup` (`string?`, `HasMaxLength(36)`).
+     - Properti `TotalItem` (`int`) tetap disediakan pada kelas C# `TrTransaction` namun ditandai `[NotMapped]` serta `.Ignore(e => e.TotalItem)` pada `BeeMartDbContext` karena tabel fisik `dbo.TrTransaction` di `Database/BeeMart.sql` (dan ERD `PRD.md` Section 5.1/5.3) tidak memiliki kolom `TotalItem` (jumlah item transaksi dihitung dari agregasi `SUM(TrTransactionDetail.Qty)` sesuai `DB-HIST-K01` dan `BR-CALC-003`). Hal ini memastikan query EF Core ke `dbo.TrTransaction` berjalan tanpa error `Invalid column name 'TotalItem'`.
+   - **Explicit Decimal Precision**: Seluruh properti `decimal` dikonfigurasi secara eksplisit di `OnModelCreating` untuk mencegah *truncation warning* EF Core: `HasPrecision(10, 2)` untuk `MsProduct.Weight`, `HasPrecision(18, 2)` untuk `MsProduct.Price`, `TrTransaction.TotalPrice`, `TrTransactionDetail.Price`, dan `TrTransactionDetail.SubTotal`, serta `HasPrecision(5, 2)` untuk `MsProduct.Discount` dan `TrTransactionDetail.Discount`.
+   - **Foreign Key Delete Behavior (`DeleteBehavior.Restrict`)**: Keempat relasi *foreign key* (`FK_TrTransaction_MsUser`, `FK_TrTransaction_LtPaymentMethod`, `FK_TrTransactionDetail_TrTransaction`, `FK_TrTransactionDetail_MsProduct`) dikonfigurasi menggunakan `DeleteBehavior.Restrict` agar selaras dengan aturan `NO ACTION` / *soft-delete* (`Stsrc = 1`) di database.
+   - **Connection String Update & Live Verification**: `ConnectionStrings:DefaultConnection` pada `BeeMart.Api/appsettings.json` telah diperbarui menjadi `"Server=localhost\\SQLEXPRESS;Database=BeeMart;Trusted_Connection=True;TrustServerCertificate=True;"`, didaftarkan melalui `AddDbContext<BeeMartDbContext>` di `BeeMart.Api/Program.cs`, dan diverifikasi secara langsung terhadap database `BeeMart` (`PaymentMethods.Count() = 3`, `Users.Count() = 6`, `Products.Count() = 22`).

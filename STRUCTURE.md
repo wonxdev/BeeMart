@@ -24,7 +24,7 @@ flowchart LR
 
 ## 2. Directory Tree
 
-Item yang sudah dibuat pada **Phase 1–6** (beserta *repository housekeeping*) ditandai sebagai **Active**, sedangkan item untuk fase berikutnya ditandai sebagai **Planned (Phase X)**.
+Item yang sudah dibuat pada **Phase 1–11** (beserta *repository housekeeping*) ditandai sebagai **Active**, sedangkan item untuk fase berikutnya ditandai sebagai **Planned (Phase X)**.
 
 ```text
 BeeMart/
@@ -33,9 +33,9 @@ BeeMart/
 ├── README.md                                        [Active - Repo Housekeeping]
 ├── BeeMart.sln                                      [Active - Phase 1]
 ├── PRD.md                                           [Active - Phase 0/1]
-├── STRUCTURE.md                                     [Active - Phase 1-6]
-├── CHANGELOG.md                                     [Active - Phase 1-6]
-├── OPEN-ITEMS.md                                    [Active - Phase 1-6]
+├── STRUCTURE.md                                     [Active - Phase 1-11]
+├── CHANGELOG.md                                     [Active - Phase 1-11]
+├── OPEN-ITEMS.md                                    [Active - Phase 1-11]
 ├── Database/                                        [Active - Phase 1]
 │   ├── .gitkeep                                     [Active - Phase 1]
 │   └── BeeMart.sql                                  [Active - Phase 2 (DDL) & Phase 3 (Seed DML)]
@@ -46,71 +46,93 @@ BeeMart/
 │   ├── appsettings.Development.json                 [Active - Phase 1]
 │   ├── Properties/
 │   │   └── launchSettings.json                      [Active - Phase 1]
-│   ├── Controllers/                                 [Active - Phase 1 & Phase 6]
+│   ├── Controllers/                                 [Active - Phase 1, Phase 6, Phase 7, Phase 8 & Phase 9]
 │   │   ├── .gitkeep                                 [Active - Phase 1]
 │   │   ├── AuthController.cs                        [Active - Phase 6]
-│   │   ├── ProductsController.cs                    [Planned (Phase 7)]
-│   │   ├── PaymentMethodsController.cs              [Planned (Phase 7)]
-│   │   └── TransactionsController.cs                [Planned (Phase 8-9)]
+│   │   ├── ProductsController.cs                    [Active - Phase 7]
+│   │   ├── PaymentMethodsController.cs              [Active - Phase 7]
+│   │   └── TransactionsController.cs                [Active - Phase 8 & Phase 9]
 │   ├── Data/                                        [Active - Phase 4]
 │   │   └── BeeMartDbContext.cs                      [Active - Phase 4]
-│   ├── Models/                                      [Active - Phase 4 & Phase 6]
+│   ├── Models/                                      [Active - Phase 4, Phase 6, Phase 7, Phase 8 & Phase 9]
 │   │   ├── Entities/                                [Active - Phase 4]
 │   │   │   ├── MsUser.cs                            [Active - Phase 4]
 │   │   │   ├── LtPaymentMethod.cs                   [Active - Phase 4]
 │   │   │   ├── MsProduct.cs                         [Active - Phase 4]
 │   │   │   ├── TrTransaction.cs                     [Active - Phase 4]
 │   │   │   └── TrTransactionDetail.cs               [Active - Phase 4]
-│   │   └── DTOs/                                    [Active - Phase 6 / Planned (Phase 7-9)]
-│   │       └── Auth/                                [Active - Phase 6]
-│   │           ├── LoginRequest.cs                  [Active - Phase 6]
-│   │           ├── LoginResponse.cs                 [Active - Phase 6]
-│   │           ├── RegisterRequest.cs               [Active - Phase 6]
-│   │           └── RegisterResponse.cs              [Active - Phase 6]
+│   │   └── DTOs/                                    [Active - Phase 6, Phase 7, Phase 8 & Phase 9]
+│   │       ├── Auth/                                [Active - Phase 6]
+│   │       │   ├── LoginRequest.cs                  [Active - Phase 6]
+│   │       │   ├── LoginResponse.cs                 [Active - Phase 6]
+│   │       │   ├── RegisterRequest.cs               [Active - Phase 6]
+│   │       │   └── RegisterResponse.cs              [Active - Phase 6]
+│   │       ├── Master/                              [Active - Phase 7]
+│   │       │   ├── PaymentMethodResponse.cs         [Active - Phase 7]
+│   │       │   ├── ProductSearchItemResponse.cs     [Active - Phase 7]
+│   │       │   └── ProductSearchResponse.cs         [Active - Phase 7]
+│   │       └── Transaction/                         [Active - Phase 8 & Phase 9]
+│   │           ├── NextInvoiceResponse.cs           [Active - Phase 8]
+│   │           ├── TransactionDetailRequest.cs      [Active - Phase 8]
+│   │           ├── CreateTransactionRequest.cs      [Active - Phase 8]
+│   │           ├── TransactionDetailResponse.cs     [Active - Phase 8]
+│   │           ├── CreateTransactionResponse.cs     [Active - Phase 8]
+│   │           ├── TransactionHistoryItemDetailResponse.cs [Active - Phase 9]
+│   │           ├── TransactionHistoryItemResponse.cs       [Active - Phase 9]
+│   │           └── TransactionHistoryResponse.cs           [Active - Phase 9]
 │   └── Common/                                      [Active - Phase 5]
 │       ├── ApiResponse.cs                           [Active - Phase 5]
 │       ├── PasswordHasher.cs                        [Active - Phase 5]
 │       ├── JwtTokenService.cs                       [Active - Phase 5]
 │       └── ClaimsHelper.cs                          [Active - Phase 5]
-└── BeeMart.Web/                                     [Active - Phase 1]
+└── BeeMart.Web/                                     [Active - Phase 1, Phase 10 & Phase 11]
     ├── BeeMart.Web.csproj                           [Active - Phase 1]
-    ├── Program.cs                                   [Active - Phase 1]
-    ├── appsettings.json                             [Active - Phase 1]
+    ├── Program.cs                                   [Active - Phase 1 & Phase 10]
+    ├── appsettings.json                             [Active - Phase 1 & Phase 10]
     ├── appsettings.Development.json                 [Active - Phase 1]
     ├── Properties/
     │   └── launchSettings.json                      [Active - Phase 1]
-    ├── Services/                                    [Planned (Phase 10)]
-    │   └── ApiClient.cs                             [Planned (Phase 10)]
-    ├── Pages/                                       [Active - Phase 1]
-    │   ├── _ViewImports.cshtml                      [Active - Phase 1]
+    ├── Models/                                      [Active - Phase 11]
+    │   └── Auth/                                    [Active - Phase 11]
+    │       ├── LoginViewModel.cs                    [Active - Phase 11]
+    │       └── RegisterViewModel.cs                 [Active - Phase 11]
+    ├── Services/                                    [Active - Phase 10]
+    │   ├── IApiClient.cs                            [Active - Phase 10]
+    │   └── ApiClient.cs                             [Active - Phase 10]
+    ├── Pages/                                       [Active - Phase 1, Phase 10 & Phase 11]
+    │   ├── _ViewImports.cshtml                      [Active - Phase 1 & Phase 11]
     │   ├── _ViewStart.cshtml                        [Active - Phase 1]
-    │   ├── Index.cshtml                             [Active - Phase 1]
+    │   ├── Index.cshtml                             [Active - Phase 1 & Phase 10]
     │   ├── Index.cshtml.cs                          [Active - Phase 1]
     │   ├── Error.cshtml                             [Active - Phase 1]
     │   ├── Error.cshtml.cs                          [Active - Phase 1]
-    │   ├── Shared/                                  [Active - Phase 1]
-    │   │   └── _Layout.cshtml                       [Active - Phase 1 / Enhanced Phase 12]
-    │   ├── Auth/                                    [Planned (Phase 11)]
-    │   │   ├── Login.cshtml                         [Planned (Phase 11)]
-    │   │   ├── Login.cshtml.cs                      [Planned (Phase 11)]
-    │   │   ├── Register.cshtml                      [Planned (Phase 11)]
-    │   │   └── Register.cshtml.cs                   [Planned (Phase 11)]
-    │   └── Transaction/                             [Planned (Phase 13-14)]
-    │       ├── New.cshtml                           [Planned (Phase 13)]
-    │       ├── New.cshtml.cs                        [Planned (Phase 13)]
-    │       ├── History.cshtml                       [Planned (Phase 14)]
-    │       └── History.cshtml.cs                    [Planned (Phase 14)]
-    └── wwwroot/                                     [Active - Phase 1]
+    │   ├── Shared/                                  [Active - Phase 1, Phase 10 & Phase 11]
+    │   │   └── _Layout.cshtml                       [Active - Phase 1, Phase 10 & Phase 11]
+    │   ├── Auth/                                    [Active - Phase 11]
+    │   │   ├── Login.cshtml                         [Active - Phase 11]
+    │   │   ├── Login.cshtml.cs                      [Active - Phase 11]
+    │   │   ├── Register.cshtml                      [Active - Phase 11]
+    │   │   ├── Register.cshtml.cs                   [Active - Phase 11]
+    │   │   ├── Logout.cshtml                        [Active - Phase 11]
+    │   │   ├── Logout.cshtml.cs                     [Active - Phase 11]
+    │   │   ├── AccessDenied.cshtml                  [Active - Phase 11]
+    │   │   └── AccessDenied.cshtml.cs               [Active - Phase 11]
+    │   └── Transaction/                             [Planned (Phase 12-13)]
+    │       ├── New.cshtml                           [Planned (Phase 12)]
+    │       ├── New.cshtml.cs                        [Planned (Phase 12)]
+    │       ├── History.cshtml                       [Planned (Phase 13)]
+    │       └── History.cshtml.cs                    [Planned (Phase 13)]
+    └── wwwroot/                                     [Active - Phase 1 & Phase 10]
         ├── favicon.ico                              [Active - Phase 1]
         ├── css/
-        │   └── site.css                             [Active - Phase 1 (Empty) / Populated Phase 10]
+        │   └── site.css                             [Active - Phase 10 (Custom CSS Framework)]
         └── js/
-            └── site.js                              [Active - Phase 1 / Enhanced Phase 10-14]
+            └── site.js                              [Active - Phase 10 (Clock, Rupiah & Alert Utilities)]
 ```
 
 ---
 
-## 3. Detailed Inventory of Existing Folders & Files (Phase 1–6)
+## 3. Detailed Inventory of Existing Folders & Files (Phase 1–11)
 
 ### 3.1 Solution Root (`BeeMart/`)
 | Path | Project / Scope | Purpose (Fungsi) | Connections & Dependencies |
@@ -146,6 +168,17 @@ BeeMart/
 | `BeeMart.Api/Models/DTOs/Auth/LoginResponse.cs` | `BeeMart.Api` | DTO response data untuk endpoint `POST /api/v1/auth/login` (`IdUser`, `Username`, `FullName`, `Role`, `Token`). | Dibungkus di dalam `ApiResponse<LoginResponse>` oleh `AuthController.Login`. |
 | `BeeMart.Api/Models/DTOs/Auth/RegisterRequest.cs` | `BeeMart.Api` | DTO request untuk endpoint `POST /api/v1/auth/register` (`Username`, `FullName`, `Password`, `RePassword`, `Role`). | Digunakan oleh `AuthController.Register`. |
 | `BeeMart.Api/Models/DTOs/Auth/RegisterResponse.cs` | `BeeMart.Api` | DTO response data untuk endpoint `POST /api/v1/auth/register` (`IdUser`, `Username`, `FullName`, `Role`). | Dibungkus di dalam `ApiResponse<RegisterResponse>` oleh `AuthController.Register`. |
+| `BeeMart.Api/Models/DTOs/Master/PaymentMethodResponse.cs` | `BeeMart.Api` | DTO response data untuk endpoint `GET /api/v1/payment-methods` (`IdPaymentMethod` sebagai `string`, `PaymentMethodName` sebagai `string`). | Dibungkus di dalam `ApiResponse<List<PaymentMethodResponse>>` oleh `PaymentMethodsController.GetPaymentMethods`. |
+| `BeeMart.Api/Models/DTOs/Master/ProductSearchItemResponse.cs` | `BeeMart.Api` | DTO response per item produk pada hasil pencarian POS (`IdProduct`, `ProductName`, `Price`, `Stock`, `ProductImage`). | Digunakan sebagai elemen list `Items` pada `ProductSearchResponse`. |
+| `BeeMart.Api/Models/DTOs/Master/ProductSearchResponse.cs` | `BeeMart.Api` | DTO response ber-pagination untuk endpoint `GET /api/v1/products/search` (`Items`, `TotalItems`, `Page`, `PageSize`, `TotalPages`). | Dibungkus di dalam `ApiResponse<ProductSearchResponse>` oleh `ProductsController.SearchProducts`. |
+| `BeeMart.Api/Models/DTOs/Transaction/NextInvoiceResponse.cs` | `BeeMart.Api` | DTO response data untuk endpoint `GET /api/v1/transactions/next-invoice` (`InvoiceNo`). | Dibungkus di dalam `ApiResponse<NextInvoiceResponse>` oleh `TransactionsController.GetNextInvoice`. |
+| `BeeMart.Api/Models/DTOs/Transaction/TransactionDetailRequest.cs` | `BeeMart.Api` | DTO request per item dalam transaksi baru (`IdProduct`, `Quantity`). | Digunakan sebagai elemen list `Items` pada `CreateTransactionRequest`. |
+| `BeeMart.Api/Models/DTOs/Transaction/CreateTransactionRequest.cs` | `BeeMart.Api` | DTO request untuk endpoint `POST /api/v1/transactions` (`IdPaymentMethod`, `CustomerMoney`, `Items`). | Digunakan oleh `TransactionsController.CreateTransaction`. |
+| `BeeMart.Api/Models/DTOs/Transaction/TransactionDetailResponse.cs` | `BeeMart.Api` | DTO response per item rincian transaksi yang berhasil dibuat (`IdProduct`, `ProductName`, `Quantity`, `Price`, `Subtotal`). | Digunakan sebagai elemen list `Details` pada `CreateTransactionResponse`. |
+| `BeeMart.Api/Models/DTOs/Transaction/CreateTransactionResponse.cs` | `BeeMart.Api` | DTO response data untuk endpoint `POST /api/v1/transactions` (`InvoiceNo`, `TransactionDate`, `CashierId`, `CashierName`, `PaymentMethodName`, `TotalItem`, `TotalPrice`, `CustomerMoney`, `Change`, `Details`). | Dibungkus di dalam `ApiResponse<CreateTransactionResponse>` oleh `TransactionsController.CreateTransaction`. |
+| `BeeMart.Api/Models/DTOs/Transaction/TransactionHistoryItemDetailResponse.cs` | `BeeMart.Api` | DTO response per item barang dalam riwayat transaksi (`IdProduct`, `ProductName`, `Quantity`, `Price`, `Subtotal`). | Digunakan sebagai elemen list `Details` pada `TransactionHistoryItemResponse`. |
+| `BeeMart.Api/Models/DTOs/Transaction/TransactionHistoryItemResponse.cs` | `BeeMart.Api` | DTO response per transaksi dalam daftar riwayat transaksi (`IdTransaction`, `InvoiceNo`, `TransactionDate`, `CashierId`, `CashierName`, `PaymentMethodName`, `TotalItem`, `TotalPrice`, `Details`). | Digunakan sebagai elemen list `Items` pada `TransactionHistoryResponse`. |
+| `BeeMart.Api/Models/DTOs/Transaction/TransactionHistoryResponse.cs` | `BeeMart.Api` | DTO response ber-pagination untuk endpoint `GET /api/v1/transactions/history` (`Items`, `TotalItems`, `Page`, `PageSize`, `TotalPages`). | Dibungkus di dalam `ApiResponse<TransactionHistoryResponse>` oleh `TransactionsController.GetTransactionHistory`. |
 | `BeeMart.Api/Common/ApiResponse.cs` | `BeeMart.Api` | Model pembungkus respons JSON standar (`ApiResponse<T>` dan `ApiResponse`) sesuai `PRD.md` Section 6.2 dengan properti `status` (`"success"` atau `"error"`), `message`, `data`, serta *factory methods* (`Success`, `Error`). | Digunakan oleh seluruh endpoint controller di `BeeMart.Api/Controllers/` (Phase 6–9). |
 | `BeeMart.Api/Common/PasswordHasher.cs` | `BeeMart.Api` | Antarmuka `IPasswordHasher` dan implementasi `PasswordHasher` berbasis `BCrypt.Net-Next` (work factor `11`) untuk melakukan *hashing* password baru dan verifikasi password terhadap `MsUser.PasswordHash`. | Diregistrasikan sebagai Singleton di `BeeMart.Api/Program.cs`; kompatibel penuh dengan 6 akun *seed* di `Database/BeeMart.sql`. |
 | `BeeMart.Api/Common/JwtTokenService.cs` | `BeeMart.Api` | Antarmuka `IJwtTokenService` dan implementasi `JwtTokenService` menggunakan algoritma HMAC-SHA256 (`HmacSha256`) untuk menerbitkan token JWT yang memuat klaim pengguna (`idUser`, `username`, `fullName`, `role`). | Membaca `JwtSettings` dari `BeeMart.Api/appsettings.json`; diregistrasikan di `BeeMart.Api/Program.cs`. |
@@ -153,40 +186,46 @@ BeeMart/
 | `BeeMart.Api/Controllers/` | `BeeMart.Api` | Direktori untuk menyimpan kelas-kelas API Controller ber-versioning `/api/v1/...`. | Dipetakan oleh `app.MapControllers()` di `BeeMart.Api/Program.cs`. |
 | `BeeMart.Api/Controllers/.gitkeep` | `BeeMart.Api` | Penanda agar direktori `Controllers/` tetap ada setelah penghapusan *boilerplate* `WeatherForecastController.cs`. | Dipertahankan di dalam `BeeMart.Api/Controllers/`. |
 | `BeeMart.Api/Controllers/AuthController.cs` | `BeeMart.Api` | Controller autentikasi publik (`[Route("api/v1/auth")]`, `[AllowAnonymous]`) yang menyediakan endpoint `POST /api/v1/auth/register` (`API-AUTH-02`, validasi input, password match, role, keunikan username *case-insensitive*, generasi `IdUser` 5 digit `D5`, hashing BCrypt) dan `POST /api/v1/auth/login` (`API-AUTH-01`, verifikasi user aktif, role, BCrypt hash, dan penerbitan JWT token). | Menginjeksi `BeeMartDbContext`, `IPasswordHasher`, dan `IJwtTokenService`, serta menggunakan DTO di `BeeMart.Api/Models/DTOs/Auth/` dan pembungkus `ApiResponse<T>`. |
+| `BeeMart.Api/Controllers/PaymentMethodsController.cs` | `BeeMart.Api` | Controller master metode pembayaran (`[Route("api/v1/payment-methods")]`, `[Authorize]`) yang menyediakan endpoint `GET /api/v1/payment-methods` (`API-PAY-01`) untuk mengambil metode pembayaran aktif (`Stsrc == true`) diurutkan berdasarkan `IdPaymentMethod` ascending. | Menginjeksi `BeeMartDbContext` dan mengembalikan `ApiResponse<List<PaymentMethodResponse>>`. |
+| `BeeMart.Api/Controllers/ProductsController.cs` | `BeeMart.Api` | Controller master produk (`[Route("api/v1/products")]`, `[Authorize]`) yang menyediakan endpoint `GET /api/v1/products/search` (`API-PROD-01`) dengan filter produk aktif (`Stsrc == true`), stok tersedia (`Stock > 0`), pencarian nama *case-insensitive* (`search`), pengurutan `Name` ascending, dan *pagination* (`page`, `pageSize` maks 50). | Menginjeksi `BeeMartDbContext` dan mengembalikan `ApiResponse<ProductSearchResponse>`. |
+| `BeeMart.Api/Controllers/TransactionsController.cs` | `BeeMart.Api` | Controller transaksi (`[Route("api/v1/transactions")]`, `[Authorize]`) yang menyediakan endpoint `GET /api/v1/transactions/next-invoice` (`API-TRX-01`, generasi nomor invoice harian berformat `INV-YYYYMMDD-XXXX`), `POST /api/v1/transactions` (`API-TRX-02`, validasi keranjang, metode pembayaran, stok barang, kalkulasi total & kembalian, pengurangan stok atomik dalam `IDbContextTransaction`, serta penyimpanan ke `TrTransaction` dan `TrTransactionDetail`), dan `GET /api/v1/transactions/history` (`API-HIST-01`, riwayat transaksi ber-pagination dengan isolasi data berbasis role `Cashier` vs `Admin` sesuai `NFR-SEC-002`, filter `startDate`/`endDate`/`cashierId`, serta *eager loading* `.Include()`/`.ThenInclude()` untuk `User`, `PaymentMethod`, `TransactionDetails`, dan `Product`). | Menginjeksi `BeeMartDbContext`, menggunakan `ClaimsHelper`, serta DTO di `BeeMart.Api/Models/DTOs/Transaction/`. |
 
 ### 3.3 WebClient Project (`BeeMart.Web/`)
 | Path | Project | Purpose (Fungsi) | Connections & Dependencies |
 | :--- | :--- | :--- | :--- |
 | `BeeMart.Web/` | `BeeMart.Web` | Folder utama proyek Frontend/UI WebClient (`DELIV-001`, `NFR-ARCH-001`, `NFR-ARCH-002`). | Terdaftar di `BeeMart.sln`; hanya berkomunikasi dengan `BeeMart.Api` melalui HTTP Request (tanpa akses database langsung). |
 | `BeeMart.Web/BeeMart.Web.csproj` | `BeeMart.Web` | File definisi proyek C# (`Microsoft.NET.Sdk.Web`) dengan target `net8.0` tanpa paket EF Core maupun driver database. | Hanya bergantung pada SDK Web standar `.NET 8`. |
-| `BeeMart.Web/Program.cs` | `BeeMart.Web` | Titik masuk (*entry point*) aplikasi WebClient Razor Pages, konfigurasi layanan (`AddRazorPages`), dan middleware (`UseStaticFiles`, `UseRouting`, `MapRazorPages`). | Membaca konfigurasi `ApiSettings:BaseUrl` dari `BeeMart.Web/appsettings.json` dan menyajikan halaman dari `Pages/` serta aset dari `wwwroot/`. |
-| `BeeMart.Web/appsettings.json` | `BeeMart.Web` | File konfigurasi utama WebClient yang menyimpan `ApiSettings:BaseUrl` (`https://localhost:7001/api/v1/`). Tidak memiliki connection string (`NFR-ARCH-002`). | Menunjuk langsung ke alamat port HTTPS `BeeMart.Api` (`https://localhost:7001/api/v1/`). |
-| `BeeMart.Web/appsettings.Development.json` | `BeeMart.Web` | Konfigurasi logging untuk environment `Development` pada WebClient. | Meng-override `BeeMart.Web/appsettings.json` saat `ASPNETCORE_ENVIRONMENT=Development`. |
+| `BeeMart.Web/Program.cs` | `BeeMart.Web` | Titik masuk (*entry point*) aplikasi WebClient Razor Pages, registrasi `AddRazorPages`, `AddHttpContextAccessor`, Typed HTTP Client `AddHttpClient<IApiClient, ApiClient>` dengan `ApiSettings:BaseUrl`, Cookie Authentication (`CookieAuthenticationDefaults.AuthenticationScheme`, `LoginPath = "/Auth/Login"`, `AccessDeniedPath = "/Auth/AccessDenied"`), serta middleware (`UseStaticFiles`, `UseRouting`, `UseAuthentication`, `UseAuthorization`, `MapRazorPages`). | Membaca konfigurasi `ApiSettings:BaseUrl` dari `BeeMart.Web/appsettings.json`, mengelola sesi Cookie Authentication, dan menyajikan halaman dari `Pages/` serta aset dari `wwwroot/`. |
+| `BeeMart.Web/appsettings.json` | `BeeMart.Web` | File konfigurasi utama WebClient yang menyimpan `ApiSettings:BaseUrl` (`http://localhost:5001/api/v1/`). Tidak memiliki connection string (`NFR-ARCH-002`). | Menunjuk langsung ke alamat endpoint `BeeMart.Api` (`http://localhost:5001/api/v1/`). |
+| `BeeMart.Web/appsettings.Development.json` | `BeeMart.Web` | Konfigurasi logging untuk environment `Development` pada WebClient (tanpa connection string). | Meng-override `BeeMart.Web/appsettings.json` saat `ASPNETCORE_ENVIRONMENT=Development`. |
 | `BeeMart.Web/Properties/launchSettings.json` | `BeeMart.Web` | Pengaturan profil eksekusi lokal dan port tetap WebClient (`https://localhost:7002`, `http://localhost:5002`). | Menggunakan port berbeda dari `BeeMart.Api` agar kedua proyek dapat berjalan bersamaan. |
+| `BeeMart.Web/Models/Auth/LoginViewModel.cs` | `BeeMart.Web` | ViewModel form login (`LoginViewModel`: `Username`, `Password`, `Role`) beserta DTO request/response API (`LoginRequest`, `LoginResponse`). | Digunakan oleh `Pages/Auth/Login.cshtml` dan `Login.cshtml.cs` untuk memanggil `POST /api/v1/auth/login`. |
+| `BeeMart.Web/Models/Auth/RegisterViewModel.cs` | `BeeMart.Web` | ViewModel form registrasi (`RegisterViewModel`: `Username`, `FullName`, `Password`, `RePassword`, `Role`) beserta DTO request/response API (`RegisterRequest`, `RegisterResponse`). | Digunakan oleh `Pages/Auth/Register.cshtml` dan `Register.cshtml.cs` untuk memanggil `POST /api/v1/auth/register`. |
+| `BeeMart.Web/Services/IApiClient.cs` | `BeeMart.Web` | Kontrak antarmuka `IApiClient` (`GetAsync<T>`, `PostAsync<TRequest, TResponse>`, `PostAsync<TResponse>`) beserta kelas pembungkus respons standar `ApiResponse<T>` (`Status`, `Message`, `Data`, `StatusCode`, `IsSuccess`). | Diimplementasikan oleh `ApiClient` dan diregistrasikan melalui `AddHttpClient<IApiClient, ApiClient>` di `BeeMart.Web/Program.cs`. |
+| `BeeMart.Web/Services/ApiClient.cs` | `BeeMart.Web` | Implementasi `IApiClient` berbasis `HttpClient` (`IHttpClientFactory`) dan `IHttpContextAccessor` untuk mengirim request HTTP `GET` dan `POST` ke `BeeMart.Api`, menyisipkan header `Authorization: Bearer <token>` secara otomatis dari klaim Cookie Authentication pengguna (`jwt_token` / `Token` / `access_token`), serta men-deserialisasi `ApiResponse<T>`. | Menginjeksi `HttpClient`, `IHttpContextAccessor`, dan `ILogger<ApiClient>`. |
 | `BeeMart.Web/Pages/` | `BeeMart.Web` | Direktori halaman Razor Pages (`.cshtml` dan `.cshtml.cs`). | Dirender oleh engine Razor Pages yang dikonfigurasi di `BeeMart.Web/Program.cs`. |
-| `BeeMart.Web/Pages/_ViewImports.cshtml` | `BeeMart.Web` | Deklarasi namespace dan Tag Helpers (`Microsoft.AspNetCore.Mvc.TagHelpers`) yang berlaku bagi seluruh Razor Pages. | Digunakan oleh seluruh file `.cshtml` di dalam `BeeMart.Web/Pages/`. |
+| `BeeMart.Web/Pages/_ViewImports.cshtml` | `BeeMart.Web` | Deklarasi namespace (`BeeMart.Web`, `BeeMart.Web.Models.Auth`) dan Tag Helpers (`Microsoft.AspNetCore.Mvc.TagHelpers`) yang berlaku bagi seluruh Razor Pages. | Digunakan oleh seluruh file `.cshtml` di dalam `BeeMart.Web/Pages/`. |
 | `BeeMart.Web/Pages/_ViewStart.cshtml` | `BeeMart.Web` | Menetapkan layout default (`_Layout`) untuk seluruh halaman Razor. | Menghubungkan halaman-halaman di `Pages/` dengan `Pages/Shared/_Layout.cshtml`. |
 | `BeeMart.Web/Pages/Shared/` | `BeeMart.Web` | Direktori komponen tampilan dan layout bersama (*shared views*). | Diakses oleh seluruh halaman Razor di `BeeMart.Web/Pages/`. |
-| `BeeMart.Web/Pages/Shared/_Layout.cshtml` | `BeeMart.Web` | Kerangka HTML utama bebas Bootstrap (`FE-STYLE-001`). | Memuat `/css/site.css` dan `/js/site.js` dari `wwwroot/`, serta merender konten halaman melalui `@RenderBody()`. |
-| `BeeMart.Web/Pages/Index.cshtml` & `Index.cshtml.cs` | `BeeMart.Web` | Halaman beranda awal (`/`), telah dibersihkan dari class CSS Bootstrap. | Menggunakan `_Layout.cshtml`; nantinya akan mengarahkan pengguna ke halaman Login atau New Transaction (Phase 10–11). |
+| `BeeMart.Web/Pages/Shared/_Layout.cshtml` | `BeeMart.Web` | Kerangka HTML semantik utama bebas Bootstrap (`FE-STYLE-001`) yang memuat header brand `BeeMart`, status sesi pengguna (`#realtime-clock` / `Role` & `Login`, nama lengkap, badge `Admin`/`Kasir`), tombol `Login`/`Register`/`Logout`, navigasi tab (`Transaksi Baru (New Transaction)` & `Riwayat Transaksi (History Transaction)`), perenderan pesan alert `TempData`, dan `<main class="container">@RenderBody()</main>`. | Hanya memuat `/css/site.css` dan `/js/site.js` lokal dari `wwwroot/`. |
+| `BeeMart.Web/Pages/Auth/Login.cshtml` & `Login.cshtml.cs` | `BeeMart.Web` | Halaman autentikasi `BeeMart Login` (`FEAT-AUTH-01`) dengan input `Username`, `Password`, dan dropdown `Role` (`Kasir`/`Cashier`, `Admin`/`Admin`), menampilkan pesan error API (mis. `"Invalid login"`), menerbitkan Cookie Authentication (`BeeMart.Auth`) beserta klaim user dan `jwt_token`, serta mengarahkan pengguna setelah login. | Menginjeksi `IApiClient` dan memanggil `POST /api/v1/auth/login`. |
+| `BeeMart.Web/Pages/Auth/Register.cshtml` & `Register.cshtml.cs` | `BeeMart.Web` | Halaman registrasi `Register Akun` (`FEAT-AUTH-02`) dengan input `Username`, `Full Name`, `Password`, `Re-Password`, dan dropdown `Role`, memvalidasi kecocokan password, menampilkan pesan error API secara persis (mis. `"username has already exists"`), dan mengarahkan ke `/Auth/Login` dengan pesan sukses `TempData["SuccessMessage"]`. | Menginjeksi `IApiClient` dan memanggil `POST /api/v1/auth/register`. |
+| `BeeMart.Web/Pages/Auth/Logout.cshtml` & `Logout.cshtml.cs` | `BeeMart.Web` | Handler logout (`FEAT-AUTH-03`) yang menghapus sesi Cookie Authentication melalui `HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme)` dan mengarahkan pengguna ke `/Auth/Login`. | Dipanggil oleh form tombol `Logout` pada `_Layout.cshtml`. |
+| `BeeMart.Web/Pages/Auth/AccessDenied.cshtml` & `AccessDenied.cshtml.cs` | `BeeMart.Web` | Halaman penolakan akses (`403 Forbidden`) menggunakan CSS kustom ketika pengguna tidak memiliki izin role yang memadai. | Terdaftar pada `options.AccessDeniedPath = "/Auth/AccessDenied"` di `BeeMart.Web/Program.cs`. |
+| `BeeMart.Web/Pages/Index.cshtml` & `Index.cshtml.cs` | `BeeMart.Web` | Halaman beranda awal (`/`) yang menggunakan komponen kartu dan tombol CSS kustom `site.css`. | Menggunakan `_Layout.cshtml` dan mengarahkan pengguna ke alur autentikasi atau transaksi POS. |
 | `BeeMart.Web/Pages/Error.cshtml` & `Error.cshtml.cs` | `BeeMart.Web` | Halaman penanganan *exception* standar bebas class Bootstrap. | Dipanggil oleh middleware `app.UseExceptionHandler("/Error")` di `BeeMart.Web/Program.cs`. |
 | `BeeMart.Web/wwwroot/` | `BeeMart.Web` | Direktori root file statis yang disajikan ke browser oleh `app.UseStaticFiles()`. | Diakses oleh `_Layout.cshtml` dan halaman Razor lainnya. |
 | `BeeMart.Web/wwwroot/favicon.ico` | `BeeMart.Web` | Ikon tab browser untuk aplikasi WebClient. | Disajikan secara statis dari `wwwroot/`. |
 | `BeeMart.Web/wwwroot/css/` | `BeeMart.Web` | Direktori file stylesheet CSS kustom. | Direferensikan oleh `Pages/Shared/_Layout.cshtml`. |
-| `BeeMart.Web/wwwroot/css/site.css` | `BeeMart.Web` | File CSS murni (saat ini dikosongkan pada Phase 1 sesuai instruksi, bebas Bootstrap). | Direferensikan oleh `Pages/Shared/_Layout.cshtml`; akan diisi styling POS murni pada Phase 10. |
+| `BeeMart.Web/wwwroot/css/site.css` | `BeeMart.Web` | Framework CSS kustom murni (`FE-STYLE-001`, tanpa Bootstrap) yang mendefinisikan CSS Custom Properties (`:root` palet amber `#F59E0B`, dark slate `#1E293B`, POS blue `#1E88E5`), reset box-sizing, tipografi, form controls, tombol, kartu, tabel responsif, badge, alert, modal dialog, dan pagination. | Direferensikan oleh `Pages/Shared/_Layout.cshtml`. |
 | `BeeMart.Web/wwwroot/js/` | `BeeMart.Web` | Direktori script JavaScript sisi klien. | Direferensikan oleh `Pages/Shared/_Layout.cshtml`. |
-| `BeeMart.Web/wwwroot/js/site.js` | `BeeMart.Web` | File JavaScript kustom sisi klien. | Direferensikan oleh `Pages/Shared/_Layout.cshtml`; akan diisi utilitas UI/interaksi pada Phase 10–14. |
+| `BeeMart.Web/wwwroot/js/site.js` | `BeeMart.Web` | Utilitas JavaScript murni sisi klien (`window.BeeMart`) untuk jam *real-time* (`<M/d/yyyy, HH.mm.ss>`), pemformat mata uang Rupiah (`Rp xx.xxx`), dan penutupan kotak alert (`[data-dismiss='alert']`). | Direferensikan oleh `Pages/Shared/_Layout.cshtml`. |
 
 ---
 
-## 4. Planned Items by Phase (Phase 7 – Phase 15)
+## 4. Planned Items by Phase (Phase 12 – Phase 15)
 
 | Planned Path | Target Project / Folder | Planned Phase | Purpose |
 | :--- | :--- | :---: | :--- |
-| `BeeMart.Api/Controllers/PaymentMethodsController.cs` & `ProductsController.cs` | `BeeMart.Api` | Phase 7 | Endpoint `/api/v1/payment-methods` dan `/api/v1/products/search`. |
-| `BeeMart.Api/Controllers/TransactionsController.cs` | `BeeMart.Api` | Phase 8–9 | Endpoint `/api/v1/transactions/next-invoice`, `POST /api/v1/transactions`, dan `GET /api/v1/transactions/history`. |
-| `BeeMart.Web/Services/*` & `Helpers/*` | `BeeMart.Web` | Phase 10 | HTTP API Client (`HttpClient` ke `ApiSettings:BaseUrl`), manajemen sesi/token, route guard, dan formatter Rupiah/waktu lokal. |
-| `BeeMart.Web/Pages/Auth/Login.cshtml(.cs)` & `Register.cshtml(.cs)` | `BeeMart.Web` | Phase 11 | Halaman autentikasi `BeeMart Login` dan `Register Akun`. |
-| `BeeMart.Web/Pages/Shared/_Layout.cshtml` | `BeeMart.Web` | Phase 12 | Pembaruan layout utama POS dengan Header biru (`BeeMart`, jam real-time / info role & login, tombol `Logout`) dan tab navigasi. |
-| `BeeMart.Web/Pages/Transaction/New.cshtml(.cs)` | `BeeMart.Web` | Phase 13 | Halaman kasir `New Transaction` (Invoice otomatis, cari barang maks 10, dialog pilih & validasi stok, keranjang belanja, metode pembayaran dinamis, submit). |
-| `BeeMart.Web/Pages/Transaction/History.cshtml(.cs)` | `BeeMart.Web` | Phase 14 | Halaman `History Transaction` untuk role `Cashier` (hanya transaksi sendiri) dan `Admin` (semua kasir) dengan filter tanggal wajib, urutan ascending, dan pagination maks 20 baris. |
+| `BeeMart.Web/Pages/Transaction/New.cshtml(.cs)` | `BeeMart.Web` | Phase 12 | Halaman kasir `New Transaction` (Invoice otomatis, cari barang, keranjang belanja, kalkulasi total & kembalian, metode pembayaran dinamis, submit transaksi). |
+| `BeeMart.Web/Pages/Transaction/History.cshtml(.cs)` | `BeeMart.Web` | Phase 13 | Halaman `History Transaction` untuk role `Cashier` (hanya transaksi sendiri) dan `Admin` (semua kasir) dengan filter tanggal, detail item, dan pagination. |

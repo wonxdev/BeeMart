@@ -15,6 +15,7 @@ E:\Development\Git Repos\BeeMart\BeeMart.Web\obj\Debug\net8.0\BeeMart.Web.csproj
 E:\Development\Git Repos\BeeMart\BeeMart.Web\obj\Debug\net8.0\BeeMart.Web.MvcApplicationPartsAssemblyInfo.cache
 E:\Development\Git Repos\BeeMart\BeeMart.Web\obj\Debug\net8.0\BeeMart.Web.RazorAssemblyInfo.cache
 E:\Development\Git Repos\BeeMart\BeeMart.Web\obj\Debug\net8.0\BeeMart.Web.RazorAssemblyInfo.cs
+E:\Development\Git Repos\BeeMart\BeeMart.Web\obj\Debug\net8.0\BeeMart.Web.sourcelink.json
 E:\Development\Git Repos\BeeMart\BeeMart.Web\obj\Debug\net8.0\rjimswa.dswa.cache.json
 E:\Development\Git Repos\BeeMart\BeeMart.Web\obj\Debug\net8.0\rjsmrazor.dswa.cache.json
 E:\Development\Git Repos\BeeMart\BeeMart.Web\obj\Debug\net8.0\rjsmcshtml.dswa.cache.json
@@ -29,4 +30,3 @@ E:\Development\Git Repos\BeeMart\BeeMart.Web\obj\Debug\net8.0\refint\BeeMart.Web
 E:\Development\Git Repos\BeeMart\BeeMart.Web\obj\Debug\net8.0\BeeMart.Web.pdb
 E:\Development\Git Repos\BeeMart\BeeMart.Web\obj\Debug\net8.0\BeeMart.Web.genruntimeconfig.cache
 E:\Development\Git Repos\BeeMart\BeeMart.Web\obj\Debug\net8.0\ref\BeeMart.Web.dll
-E:\Development\Git Repos\BeeMart\BeeMart.Web\obj\Debug\net8.0\BeeMart.Web.sourcelink.json

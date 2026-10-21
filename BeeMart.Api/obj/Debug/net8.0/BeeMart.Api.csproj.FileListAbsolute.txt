@@ -8,7 +8,9 @@ E:\Development\Git Repos\BeeMart\BeeMart.Api\bin\Debug\net8.0\BeeMart.Api.dll
 E:\Development\Git Repos\BeeMart\BeeMart.Api\bin\Debug\net8.0\BeeMart.Api.pdb
 E:\Development\Git Repos\BeeMart\BeeMart.Api\bin\Debug\net8.0\Azure.Core.dll
 E:\Development\Git Repos\BeeMart\BeeMart.Api\bin\Debug\net8.0\Azure.Identity.dll
+E:\Development\Git Repos\BeeMart\BeeMart.Api\bin\Debug\net8.0\BCrypt.Net-Next.dll
 E:\Development\Git Repos\BeeMart\BeeMart.Api\bin\Debug\net8.0\Humanizer.dll
+E:\Development\Git Repos\BeeMart\BeeMart.Api\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
 E:\Development\Git Repos\BeeMart\BeeMart.Api\bin\Debug\net8.0\Microsoft.Bcl.AsyncInterfaces.dll
 E:\Development\Git Repos\BeeMart\BeeMart.Api\bin\Debug\net8.0\Microsoft.CodeAnalysis.dll
 E:\Development\Git Repos\BeeMart\BeeMart.Api\bin\Debug\net8.0\Microsoft.CodeAnalysis.CSharp.dll
@@ -124,6 +126,7 @@ E:\Development\Git Repos\BeeMart\BeeMart.Api\obj\Debug\net8.0\BeeMart.Api.Assemb
 E:\Development\Git Repos\BeeMart\BeeMart.Api\obj\Debug\net8.0\BeeMart.Api.AssemblyInfo.cs
 E:\Development\Git Repos\BeeMart\BeeMart.Api\obj\Debug\net8.0\BeeMart.Api.csproj.CoreCompileInputs.cache
 E:\Development\Git Repos\BeeMart\BeeMart.Api\obj\Debug\net8.0\BeeMart.Api.MvcApplicationPartsAssemblyInfo.cache
+E:\Development\Git Repos\BeeMart\BeeMart.Api\obj\Debug\net8.0\BeeMart.Api.sourcelink.json
 E:\Development\Git Repos\BeeMart\BeeMart.Api\obj\Debug\net8.0\rjimswa.dswa.cache.json
 E:\Development\Git Repos\BeeMart\BeeMart.Api\obj\Debug\net8.0\rjsmrazor.dswa.cache.json
 E:\Development\Git Repos\BeeMart\BeeMart.Api\obj\Debug\net8.0\rjsmcshtml.dswa.cache.json
@@ -139,6 +142,3 @@ E:\Development\Git Repos\BeeMart\BeeMart.Api\obj\Debug\net8.0\refint\BeeMart.Api
 E:\Development\Git Repos\BeeMart\BeeMart.Api\obj\Debug\net8.0\BeeMart.Api.pdb
 E:\Development\Git Repos\BeeMart\BeeMart.Api\obj\Debug\net8.0\BeeMart.Api.genruntimeconfig.cache
 E:\Development\Git Repos\BeeMart\BeeMart.Api\obj\Debug\net8.0\ref\BeeMart.Api.dll
-E:\Development\Git Repos\BeeMart\BeeMart.Api\obj\Debug\net8.0\BeeMart.Api.sourcelink.json
-E:\Development\Git Repos\BeeMart\BeeMart.Api\bin\Debug\net8.0\BCrypt.Net-Next.dll
-E:\Development\Git Repos\BeeMart\BeeMart.Api\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll

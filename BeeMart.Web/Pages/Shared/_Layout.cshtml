@@ -1,15 +1,119 @@
+@using System.Security.Claims
+@{
+    var isAuthenticated = User.Identity?.IsAuthenticated == true;
+    var username = User.Identity?.Name ?? User.FindFirst("username")?.Value ?? "Guest";
+    var fullName = User.FindFirst("fullName")?.Value ?? username;
+    var role = User.FindFirst(ClaimTypes.Role)?.Value ?? User.FindFirst("role")?.Value ?? string.Empty;
+    var roleBadgeLabel = string.Equals(role, "Cashier", StringComparison.OrdinalIgnoreCase) ? "Kasir" : role;
+    var currentPath = Context.Request.Path.Value ?? string.Empty;
+
+    var successMessage = TempData["SuccessMessage"] as string;
+    var errorMessage = TempData["ErrorMessage"] as string;
+    var warningMessage = TempData["WarningMessage"] as string;
+    var infoMessage = TempData["InfoMessage"] as string;
+}
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - BeeMart</title>
+    <title>@(ViewData["Title"] is not null ? $"{ViewData["Title"]} - BeeMart" : "BeeMart POS")</title>
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
 <body>
-    <main role="main">
+    <header class="app-header">
+        <div class="header-inner">
+            <a class="brand-logo" asp-page="/Index">
+                <span>BeeMart</span>
+                <span class="brand-badge">POS</span>
+            </a>
+
+            <div class="header-session">
+                @if (isAuthenticated)
+                {
+                    <span class="header-session-info">
+                        @if (currentPath.StartsWith("/Transaction/History", StringComparison.OrdinalIgnoreCase)
+                             || currentPath.StartsWith("/Transactions/History", StringComparison.OrdinalIgnoreCase))
+                        {
+                            <span>Role: <strong>@role</strong> | Login: <strong>@username</strong> (@fullName)</span>
+                        }
+                        else
+                        {
+                            <span id="realtime-clock"></span>
+                            <span> | Kasir: <strong>@username</strong> (@fullName)</span>
+                        }
+                    </span>
+                    <span class="badge @(string.Equals(role, "Admin", StringComparison.OrdinalIgnoreCase) ? "badge-primary" : "badge-secondary")">
+                        @roleBadgeLabel
+                    </span>
+                    <form method="post" asp-page="/Auth/Logout" class="d-flex items-center">
+                        <button type="submit" class="btn btn-danger btn-sm">Logout</button>
+                    </form>
+                }
+                else
+                {
+                    <a class="btn btn-secondary btn-sm" asp-page="/Auth/Login">Login</a>
+                    <a class="btn btn-primary btn-sm" asp-page="/Auth/Register">Register</a>
+                }
+            </div>
+        </div>
+    </header>
+
+    @if (isAuthenticated)
+    {
+        <nav class="nav-tabs-bar" aria-label="Main POS Navigation">
+            <div class="nav-tabs-inner">
+                <a class="nav-tab @(currentPath.StartsWith("/Transaction/New", StringComparison.OrdinalIgnoreCase) || currentPath.StartsWith("/Transactions/New", StringComparison.OrdinalIgnoreCase) ? "active" : "")"
+                   asp-page="/Transaction/New">
+                    Transaksi Baru (New Transaction)
+                </a>
+                <a class="nav-tab @(currentPath.StartsWith("/Transaction/History", StringComparison.OrdinalIgnoreCase) || currentPath.StartsWith("/Transactions/History", StringComparison.OrdinalIgnoreCase) ? "active" : "")"
+                   asp-page="/Transaction/History">
+                    Riwayat Transaksi (History Transaction)
+                </a>
+            </div>
+        </nav>
+    }
+
+    <main class="container" role="main">
+        @if (!string.IsNullOrWhiteSpace(successMessage))
+        {
+            <div class="alert alert-success" role="alert">
+                <span>@successMessage</span>
+                <button type="button" class="alert-close" data-dismiss="alert" aria-label="Close">&times;</button>
+            </div>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(errorMessage))
+        {
+            <div class="alert alert-danger" role="alert">
+                <span>@errorMessage</span>
+                <button type="button" class="alert-close" data-dismiss="alert" aria-label="Close">&times;</button>
+            </div>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(warningMessage))
+        {
+            <div class="alert alert-warning" role="alert">
+                <span>@warningMessage</span>
+                <button type="button" class="alert-close" data-dismiss="alert" aria-label="Close">&times;</button>
+            </div>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(infoMessage))
+        {
+            <div class="alert alert-info" role="alert">
+                <span>@infoMessage</span>
+                <button type="button" class="alert-close" data-dismiss="alert" aria-label="Close">&times;</button>
+            </div>
+        }
+
         @RenderBody()
     </main>
+
+    <footer class="app-footer">
+        <span>&copy; @DateTime.Now.Year BeeMart Point of Sale System &mdash; Binus IT Bootcamp .NET 8</span>
+    </footer>
 
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)

@@ -39,35 +39,33 @@ Daftar *to-do* dan status pengerjaan proyek **BeeMart POS Web App** berdasarkan 
 - [x] Implement `POST /api/v1/auth/register` (validate required fields, password match, role, case-insensitive unique username with `"username has already exists"`, generate 5-digit `IdUser`, hash password).
 - [x] Implement `POST /api/v1/auth/login` (validate credentials & role against active `MsUser` records, return `"Invalid login"` on mismatch, issue JWT token on success).
 
-### Phase 7: Backend Master Data Endpoints (Next Open Phase)
-- [ ] Implement `GET /api/v1/payment-methods` (fetch active payment methods from `LtPaymentMethod`).
-- [ ] Implement `GET /api/v1/products/search?keyword=...` (search active products in `MsProduct` by name, limited to max 10 items).
+### Phase 7: Backend Master Data Endpoints
+- [x] Implement `GET /api/v1/payment-methods` (fetch active payment methods from `LtPaymentMethod`, ordered by `IdPaymentMethod` ascending, wrapped in `ApiResponse<List<PaymentMethodResponse>>`).
+- [x] Implement `GET /api/v1/products/search?search=...&page=...&pageSize=...` (search active in-stock products `Stsrc == true && Stock > 0` in `MsProduct` by name case-insensitively, ordered by `Name` ascending, with pagination default `page = 1`, `pageSize = 10`, max `50`).
 
 ### Phase 8: Backend Transaction Endpoints
-- [ ] Implement `GET /api/v1/transactions/next-invoice` (generate read-only `InvoiceNo` with format `[5 digit userID][ddmmyy][3 digit running number]`).
-- [ ] Implement `POST /api/v1/transactions` (atomic DB transaction: validate items & stock with error `"Jumlah barang yang dimasukkan melebihi sisa stok."`, calculate `SubTotal` and `TotalPrice`, deduct `MsProduct.Stock`, insert `TrTransaction` & `TrTransactionDetail`, return `nextInvoiceNo`).
+- [x] Implement `GET /api/v1/transactions/next-invoice` (generate sequential daily `InvoiceNo` with format `INV-YYYYMMDD-XXXX`, wrapped in `ApiResponse<NextInvoiceResponse>`).
+- [x] Implement `POST /api/v1/transactions` (atomic EF Core DB transaction: validate non-empty items, payment method, product stock with `"Insufficient stock for product: {ProductName}"`, and customer money with `"Customer money is insufficient"`, calculate `TotalItem`, `Subtotal`, `TotalPrice`, and `Change`, deduct `MsProduct.Stock`, insert `TrTransaction` & `TrTransactionDetail` with audit columns, wrapped in `ApiResponse<CreateTransactionResponse>`).
 
 ### Phase 9: Backend History Endpoint
-- [ ] Implement `GET /api/v1/transactions/history?date={yyyy-MM-dd}&page={page}&pageSize=20` with mandatory date validation, `ORDER BY TransactionDate ASC`, pagination (max 20 per page), and role-based filtering (`Cashier` sees only own transactions; `Admin` sees all cashiers).
+- [x] Implement `GET /api/v1/transactions/history` (`API-HIST-01`) with strict role isolation (`NFR-SEC-002`: `Cashier` strictly scoped to `TrTransaction.IdUser == loggedInUserId` ignoring `cashierId` query override; `Admin` sees all cashiers with optional `cashierId` filter), date range filtering (`startDate`, `endDate`), pagination (`page` default `1`, `pageSize` default `10`, max `50`), ordering (`OrderByDescending(t => t.TransactionDate).ThenByDescending(t => t.InvoiceNo)`), and eager loading (`.Include()` / `.ThenInclude()`) of `User`, `PaymentMethod`, `TransactionDetails`, and `Product` wrapped in `ApiResponse<TransactionHistoryResponse>`.
 
 ### Phase 10: WebClient Foundations
-- [ ] Build pure custom CSS (`wwwroot/css/site.css`) matching the PDF mockups without Bootstrap.
-- [ ] Implement typed `HttpClient` wrapper pointing to `ApiSettings:BaseUrl`, session/token storage, authentication/role route guards, and Rupiah (`Rp xx.xxx`) & local time formatters.
+- [x] Build pure custom CSS (`wwwroot/css/site.css`) matching the PDF mockups without Bootstrap (`FE-STYLE-001`), defining `:root` custom properties (Amber `#F59E0B`, Dark Slate `#1E293B`, POS Blue `#1E88E5`), typography, layout flex/grid utilities, forms, buttons, cards, tables, badges, alerts, and modals.
+- [x] Implement typed `HttpClient` wrapper (`IApiClient` & `ApiClient`) pointing to `ApiSettings:BaseUrl` (`http://localhost:5001/api/v1/`), Cookie Authentication + JWT Bearer token forwarding via `IHttpContextAccessor`, semantic `_Layout.cshtml`, and vanilla JS clock/Rupiah utilities (`wwwroot/js/site.js`).
 
 ### Phase 11: WebClient Auth Pages
-- [ ] Implement `Login` page (`/Auth/Login`) with `Username`, `Password`, `Role` dropdown (`Admin`/`Admin`, `Kasir`/`Cashier`), error popup/label, and link to Register.
-- [ ] Implement `Register` page (`/Auth/Register`) with `Username`, `Full Name`, `Password`, `Re-Password`, `Role` dropdown, error handling, and link to Login.
+- [x] Implement `Login` page (`/Auth/Login`) with `Username`, `Password`, `Role` dropdown (`Admin`/`Admin`, `Kasir`/`Cashier`), error popup/label, Cookie Authentication ticket issuance (`idUser`, `username`, `fullName`, `role`, `jwt_token`), and link to Register.
+- [x] Implement `Register` page (`/Auth/Register`) with `Username`, `Full Name`, `Password`, `Re-Password`, `Role` dropdown, exact duplicate/error handling (`"username has already exists"`), `TempData["SuccessMessage"]`, and link to Login.
+- [x] Implement `Logout` handler (`/Auth/Logout`) calling `SignOutAsync` and `AccessDenied` page (`/Auth/AccessDenied`), plus dynamic header & role badge updates in `_Layout.cshtml`.
 
-### Phase 12: WebClient Shared Layout
-- [ ] Implement top navbar (`BeeMart` brand, context-aware right header showing `<M/d/yyyy, HH.mm.ss> | Kasir: <username>` on New Transaction or `Role: <Role> | Login: <username>` on History Transaction, red `Logout` button) and `New Transaction` / `History Transaction` navigation tabs.
-
-### Phase 13: WebClient New Transaction Page
+### Phase 12: WebClient New Transaction Page (POS Web Page — Next Open Phase)
 - [ ] Implement `/Transaction/New` page: auto read-only `Invoice No`, product search on `Enter` (max 10 rows), `Pilih` dialog (`Barang Terpilih`, unit price, remaining stock, `Qty` input with stock validation), `Daftar Belanjaan` cart table with `Hapus`, `Total` calculation, dynamic `Metode Pembayaran` dropdown from API, and `Submit Transaksi` with automatic page reset and new invoice number.
 
-### Phase 14: WebClient History Page
+### Phase 13: WebClient History Page
 - [ ] Implement `/Transaction/History` page supporting both `Cashier` (`Pencarian Data Transaksi (Hanya Kasir: <username>)`) and `Admin` (`Pencarian Data Transaksi (Menampilkan Semua Kasir)`) views, mandatory date picker (`Pilih Tanggal`), `Cari Data` button, ascending transaction table, and pagination controls (max 20 rows per page).
 
-### Phase 15: Final Checks & Delivery
+### Phase 14–15: Final Checks & Delivery
 - [ ] Verify end-to-end flows against all PRD acceptance criteria, confirm zero direct DB access in `BeeMart.Web`, ensure clean build (`dotnet build`), and finalize documentation (`STRUCTURE.md`, `CHANGELOG.md`, `OPEN-ITEMS.md`).
 
 ---
@@ -83,7 +81,7 @@ Daftar *to-do* dan status pengerjaan proyek **BeeMart POS Web App** berdasarkan 
 
 ---
 
-## 3. Notes / Decisions / Blockers (Assumptions Recorded in Phases 1–6)
+## 3. Notes / Decisions / Blockers (Assumptions Recorded in Phases 1–10)
 
 1. **WebClient Project Template Choice (`ASP.NET Core Razor Pages`)**:
    - Sesuai `NFR-TECH-002` dan instruksi Phase 1 Task 3 (*"ASP.NET Core Razor Pages or MVC, net8.0"*), proyek `BeeMart.Web` dibuat menggunakan template **ASP.NET Core Razor Pages** karena sangat selaras dengan pembagian fase berbasis halaman (*Phase 11: Auth Pages*, *Phase 12: Shared Layout*, *Phase 13: New Transaction Page*, *Phase 14: History Page*).
@@ -125,3 +123,34 @@ Daftar *to-do* dan status pengerjaan proyek **BeeMart POS Web App** berdasarkan 
     - **5-Digit `IdUser` Generation Strategy (`GenerateNextUserIdAsync`)**: Saat registrasi user baru pada `POST /api/v1/auth/register`, sistem mengambil seluruh nilai `IdUser` dari tabel `MsUser`, mem-parsing nilai numerik, mencari nilai maksimum saat ini (`< 99999`), menambahkan `+ 1`, dan memformatnya dengan `D5` (contoh: setelah user *seed* tertinggi `78886` milik `felix`, user baru berikutnya mendapat `"78887"`). Terdapat pula *fallback loop* (`00001`–`99999`) berbasis `HashSet` untuk menjamin tidak pernah terjadi bentrokan primary key meskipun `IdUser` mencapai batas atas.
     - **Case-Insensitive Username Uniqueness & Exact Error Messages**: Validasi keunikan `Username` dilakukan secara *case-insensitive* (`u.Username.ToLower() == trimmedUsername.ToLower()`) dan mengembalikan **HTTP 400 Bad Request** dengan pesan persis `"username has already exists"`. Ketidakcocokan konfirmasi password mengembalikan `"Password and confirmation password do not match"`, role di luar `"Admin"` / `"Cashier"` mengembalikan `"Role must be either Admin or Cashier"`, dan kegagalan login (user tidak ditemukan / tidak aktif `Stsrc == false` / role tidak sesuai / verifikasi BCrypt gagal) mengembalikan **HTTP 401 Unauthorized** dengan pesan persis `"Invalid login"`.
     - **Custom Validation Wrapper Consistency (`SuppressModelStateInvalidFilter = true`)**: Pada `BeeMart.Api/Program.cs`, opsi `SuppressModelStateInvalidFilter = true` diaktifkan pada `AddControllers()` agar request dengan properti kosong/null tidak diinterupsi oleh format default `ValidationProblemDetails` ASP.NET Core, melainkan selalu divalidasi oleh controller dan dikembalikan dalam format `ApiResponse.Error(...)`.
+11. **Phase 7 Master Data Endpoints Decisions (DTO Mapping, Pagination & Stock Filtering)**:
+    - **Authorization (`[Authorize]`)**: Kedua controller (`PaymentMethodsController` dan `ProductsController`) diamankan dengan atribut `[Authorize]` sehingga dapat diakses oleh pengguna terautentikasi ber-role `Admin` maupun `Cashier`, dan menolak akses anonim dengan **HTTP 401 Unauthorized**.
+    - **Payment Method DTO Mapping (`PaymentMethodResponse`)**: Kolom database `LtPaymentMethod.IdPaymentMethod` (`int`) dan `LtPaymentMethod.MethodName` (`string`) dipetakan ke `PaymentMethodResponse.IdPaymentMethod` (`pm.IdPaymentMethod.ToString()`) dan `PaymentMethodResponse.PaymentMethodName` (`pm.MethodName`), hanya untuk record aktif (`Stsrc == true`) dan diurutkan berdasarkan `IdPaymentMethod` ascending.
+    - **Product Search Filtering & Pagination (`ProductsController.SearchProducts`)**:
+      - Hanya mengembalikan produk yang aktif (`Stsrc == true`) **dan** memiliki stok tersedia (`Stock > 0`) agar barang yang habis stok atau nonaktif tidak muncul pada pencarian transaksi POS.
+      - Parameter opsional `search` difilter secara *case-insensitive* (`p.Name.ToLower().Contains(trimmedSearch)`) dan hasil diurutkan berdasarkan `Name` ascending.
+      - Mendukung pagination melalui parameter `page` (default `1`, dinormalisasi minimal `1`) dan `pageSize` (default `10` sesuai batas pencarian 10 item di PRD, dinormalisasi minimal `1` dan dibatasi maksimal `50`), dengan kalkulasi `TotalItems = CountAsync()` dan `TotalPages = (int)Math.Ceiling((double)totalItems / pageSize)` (`0` jika `totalItems == 0`).
+      - Karena tabel fisik `dbo.MsProduct` pada ERD/DDL tidak memiliki kolom gambar, properti `ProductImage` pada `ProductSearchItemResponse` diisi `null`.
+12. **Phase 8 Transaction Endpoints Decisions (Invoice Sequence Format, Concurrency & Schema Alignment)**:
+    - **Daily Invoice Sequence Format (`INV-YYYYMMDD-XXXX`)**: Sesuai spesifikasi kontrak Phase 8 (`GET /api/v1/transactions/next-invoice` dan `POST /api/v1/transactions`), nomor invoice dihasilkan dengan format `INV-YYYYMMDD-XXXX` (17 karakter, cocok dengan kolom `TrTransaction.InvoiceNo NVARCHAR(20)` dan indeks unik `UQ_TrTransaction_InvoiceNo`). Sistem mencari seluruh `InvoiceNo` yang diawali prefix tanggal hari ini (`INV-YYYYMMDD-`), mem-parsing 4 digit nomor urut terakhir terbesar, dan menambahkan `+ 1` (dimulai dari `0001` jika belum ada transaksi pada hari tersebut).
+    - **Database Transaction & Stock Deduction (`IDbContextTransaction`)**: Seluruh proses checkout pada `POST /api/v1/transactions` dibungkus di dalam transaksi database EF Core (`await using var dbTransaction = await _dbContext.Database.BeginTransactionAsync()`). Pengecekan dan pengurangan `MsProduct.Stock` (`product.Stock -= item.Quantity`) dilakukan pada entitas yang di-*track* di dalam cakupan transaksi (sehingga otomatis memvalidasi akumulasi kuantitas apabila produk yang sama dikirim lebih dari satu baris dalam `Items`), dan nomor `InvoiceNo` dihitung ulang tepat sebelum `SaveChangesAsync()` dan `CommitAsync()` untuk mencegah *race condition* atau duplikasi nomor invoice.
+    - **Schema & DTO Mapping Alignment**:
+      - `CreateTransactionRequest.IdPaymentMethod` (`string`, selaras dengan `PaymentMethodResponse.IdPaymentMethod` pada Phase 7) di-parse ke `int` dan divalidasi terhadap `LtPaymentMethod` (`Stsrc == true`).
+      - Properti finansial `CustomerMoney` dan `Change` (`CustomerMoney - TotalPrice`) divalidasi (`CustomerMoney >= TotalPrice`) dan dikembalikan pada `CreateTransactionResponse`, sedangkan penyimpanan ke tabel fisik `dbo.TrTransaction` dan `dbo.TrTransactionDetail` tetap mematuhi skema DDL Phase 2 / EF Core Phase 4 (`TotalItem` bersifat `[NotMapped]` pada `TrTransaction`, `Quantity` dipetakan ke `TrTransactionDetail.Qty`, dan `Subtotal` dipetakan ke `TrTransactionDetail.SubTotal`).
+13. **Phase 9 Transaction History Endpoint Decisions (Role Isolation `NFR-SEC-002` & Eager Loading)**:
+    - **Strict Role-Based Data Isolation (`NFR-SEC-002`)**: Pada `GET /api/v1/transactions/history`, identitas (`idUser`) dan peran (`role`) diekstrak dari klaim JWT melalui `ClaimsHelper`. Jika pemanggil ber-role `Cashier`, query secara ketat dikunci ke `t.IdUser == loggedInUserId` dan mengabaikan parameter `cashierId` apa pun pada query string sehingga kasir tidak pernah dapat mengintip transaksi kasir lain. Jika pemanggil ber-role `Admin`, seluruh transaksi kasir ditampilkan secara global dan parameter opsional `cashierId` dapat digunakan untuk memfilter kasir tertentu.
+    - **Inclusive Date Range Filtering (`startDate` & `endDate`)**: Parameter `startDate` dan `endDate` dinormalisasi secara inklusif: apabila `startDate` dikirim sebagai tanggal tanpa komponen waktu (`TimeOfDay == TimeSpan.Zero`), batas awal dimulai dari `00:00:00`; apabila `endDate` dikirim tanpa komponen waktu (`TimeOfDay == TimeSpan.Zero`), batas akhir diperluas hingga akhir hari (`endDate.Value.Date.AddDays(1).AddTicks(-1)`, yaitu `23:59:59.9999999`).
+    - **N+1 Prevention via Eager Loading (`.Include()` / `.ThenInclude()`)**: Query riwayat menggunakan `.AsNoTracking()` dan menerapkan `.Include(t => t.User)`, `.Include(t => t.PaymentMethod)`, serta `.Include(t => t.TransactionDetails.Where(d => d.Stsrc)).ThenInclude(d => d.Product)` setelah `.Skip((page - 1) * pageSize).Take(pageSize)`, kemudian menghitung `TotalItem = details.Sum(d => d.Quantity)` tanpa menghasilkan query N+1.
+14. **Phase 10 WebClient Foundations Decisions (Pure Custom CSS Architecture & Cookie/JWT Bridging Strategy)**:
+    - **Pure Custom CSS Framework (`FE-STYLE-001`, Zero Bootstrap)**: Seluruh styling aplikasi didefinisikan di `BeeMart.Web/wwwroot/css/site.css` menggunakan CSS Custom Properties (`:root`) dengan palet Amber-Honey (`--color-primary: #F59E0B`), Dark Slate (`--color-dark-slate: #1E293B`), POS Blue (`--color-secondary: #1E88E5`), Light Background (`#F8FAFC`), Surface (`#FFFFFF`), Border (`#E2E8F0`), Danger (`#EF4444`), dan Success (`#10B981`). Mencakup reset box-sizing, tipografi harga tabular (`.price-text`, `.price-total`), form & validasi error, tombol, kartu/panel, tabel responsif, badge/chip, kotak alert `TempData`, modal dialog (`.modal-backdrop`, `.modal-dialog`), dan pagination.
+    - **Cookie Authentication & Automatic JWT Bearer Forwarding (`IApiClient` / `ApiClient`)**:
+      - `BeeMart.Web/Program.cs` mendaftarkan Cookie Authentication (`CookieAuthenticationDefaults.AuthenticationScheme`, `LoginPath = "/Auth/Login"`, `LogoutPath = "/Auth/Logout"`, `AccessDeniedPath = "/Auth/AccessDenied"`, `HttpOnly = true`) untuk mempertahankan sesi pengguna lintas request Razor Pages.
+      - Saat pengguna berhasil login pada Phase 11, token JWT yang diterima dari `POST /api/v1/auth/login` disimpan di dalam klaim Cookie Authentication (`"jwt_token"` / `"Token"` / `"access_token"`).
+      - `ApiClient` (didaftarkan sebagai Typed Client `AddHttpClient<IApiClient, ApiClient>` dengan `BaseAddress = http://localhost:5001/api/v1/`) menginjeksi `IHttpContextAccessor`, mengekstrak token JWT dari klaim `HttpContext.User` secara otomatis pada setiap pemanggilan `GetAsync<T>` dan `PostAsync<TRequest, TResponse>`, menyisipkannya ke header `Authorization: Bearer <token>`, serta men-deserialisasi pembungkus `ApiResponse<T>` baik pada status HTTP 2xx maupun 4xx/5xx.
+15. **Phase 11 WebClient Authentication Pages Decisions (Cookie Claims Mapping & Post-Auth Redirects)**:
+    - **Cookie Authentication Claims Mapping (`LoginModel.OnPostAsync`)**: Setelah `POST /api/v1/auth/login` mengembalikan `LoginResponse`, `BeeMart.Web` menerbitkan tiket Cookie Authentication (`BeeMart.Auth`, `CookieAuthenticationDefaults.AuthenticationScheme`) yang memuat klaim standar sekaligus klaim kustom: `ClaimTypes.NameIdentifier` + `"idUser"` (`user.IdUser`), `ClaimTypes.Name` + `"username"` (`user.Username`), `"fullName"` (`user.FullName`), `ClaimTypes.Role` + `"role"` (`user.Role`), dan `ApiClient.JwtClaimType` (`"jwt_token"`, berisi `user.Token`).
+    - **Role Dropdown Localization (`Admin` vs `Kasir`)**: Pada halaman `/Auth/Login` dan `/Auth/Register`, dropdown `Role` menampilkan opsi label `"Kasir"` dengan nilai `"Cashier"` (default) dan label `"Admin"` dengan nilai `"Admin"`, sedangkan badge pada header `_Layout.cshtml` menampilkan `"Kasir"` untuk role `"Cashier"` dan `"Admin"` untuk role `"Admin"`.
+    - **Post-Login & Post-Registration Redirect Behavior**:
+      - Setelah registrasi berhasil pada `/Auth/Register`, sistem menyimpan `TempData["SuccessMessage"] = "Account registered successfully. Please login."` dan mengarahkan pengguna ke `/Auth/Login`.
+      - Setelah login berhasil pada `/Auth/Login`, sistem memeriksa `ReturnUrl` (`Url.IsLocalUrl(returnUrl)`) dan jika tidak ada `ReturnUrl`, mengarahkan pengguna ke `/Index` (yang menampilkan tombol pintasan ke `/Transaction/New` dan `/Transaction/History` untuk Phase 12 & Phase 13).
+      - Saat `POST /Auth/Logout` (atau `GET /Auth/Logout`) dipanggil, sistem memanggil `HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme)` untuk menghapus cookie `BeeMart.Auth` dan mengarahkan kembali ke `/Auth/Login`.

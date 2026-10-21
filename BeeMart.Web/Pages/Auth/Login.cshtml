@@ -1,0 +1,65 @@
+@page
+@model BeeMart.Web.Pages.Auth.LoginModel
+@{
+    ViewData["Title"] = "BeeMart Login";
+}
+
+<div class="container-narrow">
+    <section class="card card-auth">
+        <div class="text-center mb-4">
+            <h1 class="text-accent mb-1">BeeMart Login</h1>
+            <p class="text-muted">Silakan masuk menggunakan akun Kasir atau Admin Anda</p>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+        {
+            <div class="alert alert-danger" role="alert">
+                <span>@Model.ErrorMessage</span>
+                <button type="button" class="alert-close" data-dismiss="alert" aria-label="Close">&times;</button>
+            </div>
+        }
+
+        <form method="post" novalidate>
+            <input type="hidden" asp-for="ReturnUrl" />
+
+            <div class="form-group">
+                <label asp-for="Input.Username" class="form-label">Username</label>
+                <input asp-for="Input.Username"
+                       class="form-control"
+                       placeholder="Masukkan username"
+                       autocomplete="username"
+                       required />
+                <span asp-validation-for="Input.Username" class="validation-error"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Input.Password" class="form-label">Password</label>
+                <input asp-for="Input.Password"
+                       type="password"
+                       class="form-control"
+                       placeholder="Masukkan password"
+                       autocomplete="current-password"
+                       required />
+                <span asp-validation-for="Input.Password" class="validation-error"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Input.Role" class="form-label">Role</label>
+                <select asp-for="Input.Role" class="form-select" required>
+                    <option value="Cashier">Kasir</option>
+                    <option value="Admin">Admin</option>
+                </select>
+                <span asp-validation-for="Input.Role" class="validation-error"></span>
+            </div>
+
+            <button type="submit" class="btn btn-accent btn-block btn-lg mt-4">
+                Login
+            </button>
+        </form>
+
+        <div class="text-center mt-4">
+            <span class="text-secondary">Belum punya akun? </span>
+            <a asp-page="/Auth/Register" class="font-semibold">Register</a>
+        </div>
+    </section>
+</div>

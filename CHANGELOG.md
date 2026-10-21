@@ -8,15 +8,121 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
-- **Phase 7**: Backend Master Data Endpoints (`GET /api/v1/payment-methods`, `GET /api/v1/products/search`).
-- **Phase 8**: Backend Transaction Endpoints (`GET /api/v1/transactions/next-invoice`, `POST /api/v1/transactions`).
-- **Phase 9**: Backend History Endpoint (`GET /api/v1/transactions/history`).
-- **Phase 10**: WebClient Foundations (custom CSS, HTTP API client, token/session state, auth guards, IDR & date formatters).
-- **Phase 11**: WebClient Auth Pages (`Login` & `Register`).
-- **Phase 12**: WebClient Shared Layout (Header bar, real-time clock, session indicator, navigation tabs, logout).
-- **Phase 13**: WebClient New Transaction Page.
-- **Phase 14**: WebClient History Page (`Cashier` & `Admin` modes).
-- **Phase 15**: Final Checks & Delivery verification.
+- **Phase 12**: WebClient New Transaction Page (POS interface).
+- **Phase 13**: WebClient History Page (`Cashier` & `Admin` modes).
+- **Phase 14–15**: Final Checks & Delivery verification.
+
+---
+
+## [Phase 11] - 2026-10-21 — WebClient Authentication Pages (Login, Register, Logout, Access Denied)
+
+### Added
+- Created Authentication ViewModels and API Request/Response DTOs in `BeeMart.Web/Models/Auth/`:
+  - `LoginViewModel.cs`: `LoginViewModel` (`Username`, `Password`, `Role` defaulting to `"Cashier"`), `LoginRequest`, and `LoginResponse`.
+  - `RegisterViewModel.cs`: `RegisterViewModel` (`Username`, `FullName`, `Password`, `RePassword` with `[Compare("Password")]`, `Role` defaulting to `"Cashier"`), `RegisterRequest`, and `RegisterResponse`.
+- Created Authentication Razor Pages in `BeeMart.Web/Pages/Auth/` styled exclusively with `wwwroot/css/site.css` (`FE-STYLE-001`, zero Bootstrap):
+  - `Login.cshtml` & `Login.cshtml.cs`: Renders centered `BeeMart Login` card (`card-auth`) with `Username`, `Password`, `Role` dropdown (`Kasir`/`Cashier`, `Admin`/`Admin`), `Login` submit button, and link to `/Auth/Register`. Calls `_apiClient.PostAsync<LoginRequest, LoginResponse>("auth/login", ...)`, renders backend error messages (e.g., `"Invalid login"`) in a custom `.alert.alert-danger` box, and on success issues the `BeeMart.Auth` cookie via `HttpContext.SignInAsync` storing `ClaimTypes.NameIdentifier` (`idUser`), `ClaimTypes.Name` (`username`), `fullName`, `ClaimTypes.Role` (`role`), and `jwt_token` before redirecting.
+  - `Register.cshtml` & `Register.cshtml.cs`: Renders centered `Register Akun` card (`card-auth`) with `Username`, `Full Name`, `Password`, `Re-Password`, `Role` dropdown (`Kasir`/`Cashier`, `Admin`/`Admin`), `Daftar` submit button, and link to `/Auth/Login`. Validates required fields and password confirmation, calls `_apiClient.PostAsync<RegisterRequest, RegisterResponse>("auth/register", ...)`, displays exact backend conflict/error messages (e.g., `"username has already exists"`), and on success sets `TempData["SuccessMessage"] = "Account registered successfully. Please login."` and redirects to `/Auth/Login`.
+  - `Logout.cshtml` & `Logout.cshtml.cs`: Clears the Cookie Authentication session via `HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme)` and redirects to `/Auth/Login`.
+  - `AccessDenied.cshtml` & `AccessDenied.cshtml.cs`: Renders a friendly custom 403 Forbidden permission error card with links back to `/Index` and `/Auth/Login`.
+
+### Changed
+- Updated `BeeMart.Web/Pages/_ViewImports.cshtml` to import `@using BeeMart.Web.Models.Auth`.
+- Updated `BeeMart.Web/Pages/Shared/_Layout.cshtml` to display the authenticated user's full name (`fullName`), username, Indonesian role badge (`Kasir` for `Cashier`, `Admin` for `Admin`), `Logout` form button, and POS navigation tabs (`Transaksi Baru (New Transaction)` and `Riwayat Transaksi (History Transaction)`).
+
+### Verified
+- Executed `dotnet build BeeMart.sln`: succeeded with `0 Warning(s)` and `0 Error(s)`.
+- Verified `BeeMart.Web.csproj` contains zero EF Core or SQL Server references.
+- Executed end-to-end Web authentication flow tests against `BeeMart.Api` (`http://localhost:5001`) and `BeeMart.Web` (`http://localhost:5002`) verifying `GET /Auth/Login`, invalid login error alert (`"Invalid login"`), valid login cookie issuance (`BeeMart.Auth`) and redirect for Cashier `steven`, `GET /Auth/Register`, duplicate registration error alert (`"username has already exists"`), new user registration redirect with `TempData["SuccessMessage"]`, `POST /Auth/Logout`, and `GET /Auth/AccessDenied`.
+- Updated `STRUCTURE.md`, `OPEN-ITEMS.md`, and `CHANGELOG.md`.
+
+---
+
+## [Phase 10] - 2026-10-21 — Web Client Setup, HTTP Client Infrastructure & Custom CSS Foundations
+
+### Added
+- Created Typed HTTP API Client service in `BeeMart.Web/Services/`:
+  - `IApiClient.cs`: Defines `ApiResponse<T>` (`Status`, `Message`, `Data`, `StatusCode`, `IsSuccess`) and `IApiClient` methods (`GetAsync<T>`, `PostAsync<TRequest, TResponse>`, `PostAsync<TResponse>`).
+  - `ApiClient.cs`: Implements `IApiClient` using `HttpClient` (`IHttpClientFactory`) and `IHttpContextAccessor`, automatically extracting the authenticated user's JWT Bearer token from Cookie Authentication claims (`"jwt_token"` / `"Token"` / `"access_token"`) and attaching `Authorization: Bearer <token>` to outgoing API requests, while unwrapping `ApiResponse<T>` JSON payloads across both success and error HTTP status codes.
+- Implemented Pure Custom CSS Framework (`BeeMart.Web/wwwroot/css/site.css`, `FE-STYLE-001` — zero Bootstrap or external CSS libraries):
+  - Defined `:root` CSS Custom Properties for brand palette (`--color-primary: #F59E0B` amber-honey theme, `--color-secondary: #1E88E5` POS blue, `--color-dark-slate: #1E293B`, `--color-bg: #F8FAFC`, `--color-surface: #FFFFFF`, `--color-border: #E2E8F0`, `--color-danger: #EF4444`, `--color-success: #10B981`, `--color-warning: #F59E0B`), system sans-serif typography, border radii, shadows, and transitions.
+  - Implemented global reset (`box-sizing: border-box; margin: 0; padding: 0;`), typography utilities (`.price-text`, `.price-total`, `.text-muted`), layout & flex/grid helpers, navigation bar & POS tabs, cards/panels (`.card`, `.card-header`, `.card-body`, `.card-footer`, `.invoice-banner`), form inputs & validation errors, buttons (`.btn`, `.btn-primary`, `.btn-accent`, `.btn-secondary`, `.btn-danger`), responsive tables (`.table`, `.table-striped`, `.table-responsive`), badges/chips, dismissible alerts, modal dialogs (`.modal-backdrop`, `.modal-dialog`), and pagination controls.
+- Populated `BeeMart.Web/wwwroot/js/site.js` with vanilla JS client utilities (`window.BeeMart.formatRealtimeClock`, `window.BeeMart.formatRupiah`, automatic `#realtime-clock` 1-second ticker, and `[data-dismiss='alert']` handler).
+
+### Configured
+- Updated `BeeMart.Web/appsettings.json`: Configured `ApiSettings:BaseUrl` to `"http://localhost:5001/api/v1/"` with zero database connection strings (`NFR-ARCH-002`).
+- Updated `BeeMart.Web/Program.cs`:
+  - Registered `AddHttpContextAccessor()` and Typed HTTP Client `AddHttpClient<IApiClient, ApiClient>` pointing to `ApiSettings:BaseUrl`.
+  - Registered Cookie Authentication (`CookieAuthenticationDefaults.AuthenticationScheme`) with `LoginPath = "/Auth/Login"`, `LogoutPath = "/Auth/Logout"`, `AccessDeniedPath = "/Auth/AccessDenied"`, and `HttpOnly = true`.
+  - Configured middleware pipeline (`UseStaticFiles`, `UseRouting`, `UseAuthentication`, `UseAuthorization`, `MapRazorPages`).
+- Updated `BeeMart.Web/Pages/Shared/_Layout.cshtml` and `BeeMart.Web/Pages/Index.cshtml` with semantic HTML, authentication-aware header & navigation tabs, and `TempData` alert banner rendering.
+
+### Verified
+- Executed `dotnet build BeeMart.sln`: succeeded with `0 Warning(s)` and `0 Error(s)`.
+- Verified `BeeMart.Web.csproj` contains zero EF Core or SQL Server references, `BeeMart.Web/appsettings.json` contains zero connection strings, and `_Layout.cshtml` contains zero Bootstrap references.
+- Executed runtime smoke test against `http://localhost:5002/`: verified HTTP 200 OK on `/`, `/css/site.css`, and `/js/site.js`.
+- Updated `STRUCTURE.md`, `OPEN-ITEMS.md`, and `CHANGELOG.md`.
+
+---
+
+## [Phase 9] - 2026-10-21 — Backend History Endpoint (Role-Isolated)
+
+### Added
+- Created Transaction History DTOs under `BeeMart.Api/Models/DTOs/Transaction/`:
+  - `TransactionHistoryItemDetailResponse.cs`: `IdProduct` (`string`), `ProductName` (`string`), `Quantity` (`int`), `Price` (`decimal`), `Subtotal` (`decimal`).
+  - `TransactionHistoryItemResponse.cs`: `IdTransaction` (`string`), `InvoiceNo` (`string`), `TransactionDate` (`DateTime`), `CashierId` (`string`), `CashierName` (`string`), `PaymentMethodName` (`string`), `TotalItem` (`int`), `TotalPrice` (`decimal`), `Details` (`List<TransactionHistoryItemDetailResponse>`).
+  - `TransactionHistoryResponse.cs`: `Items` (`List<TransactionHistoryItemResponse>`), `TotalItems` (`int`), `Page` (`int`), `PageSize` (`int`), `TotalPages` (`int`).
+- Added `GET /api/v1/transactions/history` (`API-HIST-01`) to `TransactionsController` (`BeeMart.Api/Controllers/TransactionsController.cs`):
+  - Enforces strict role isolation (`NFR-SEC-002`) via JWT claims (`ClaimsHelper`): `Cashier` requests are strictly scoped to `TrTransaction.IdUser == loggedInUserId` (ignoring any `cashierId` query parameter), while `Admin` requests can view all cashiers' transactions or filter by optional `cashierId`.
+  - Supports optional inclusive date range filtering (`startDate` from `00:00:00`, `endDate` through `23:59:59.9999999` when date-only) and pagination (`page` default `1` min `1`, `pageSize` default `10` min `1` max `50`).
+  - Filters active transactions (`Stsrc == true`), orders by `TransactionDate` descending then `InvoiceNo` descending, eager-loads `User` (`MsUser`), `PaymentMethod` (`LtPaymentMethod`), and active `TransactionDetails` (`TrTransactionDetail`) with `Product` (`MsProduct`) via `.Include()` / `.ThenInclude()` without N+1 queries, calculates `TotalItem` as the sum of line-item quantities, and returns **HTTP 200 OK** wrapped in `ApiResponse<TransactionHistoryResponse>`.
+
+### Verified
+- Executed `dotnet build BeeMart.sln`: succeeded with `0 Warning(s)` and `0 Error(s)`.
+- Executed live HTTP smoke tests against `https://localhost:7001/api/v1/transactions/history`: verified HTTP 401 for unauthenticated requests, Cashier isolation for `steven` (`76985`), Cashier override prevention when `steven` passes `?cashierId=66859`, Admin (`00001`) global visibility across multiple cashiers (`steven` and `gabri`), Admin `?cashierId=76985` filtering, date range filtering (`startDate`/`endDate`), pagination (`page=1&pageSize=1` and `page=1&pageSize=5`), and complete line-item details projection.
+- Updated `STRUCTURE.md`, `OPEN-ITEMS.md`, and `CHANGELOG.md`.
+
+---
+
+## [Phase 8] - 2026-10-20 — Backend Transaction Endpoints
+
+### Added
+- Created Transaction DTOs under `BeeMart.Api/Models/DTOs/Transaction/`:
+  - `NextInvoiceResponse.cs`: `InvoiceNo` (`string`).
+  - `TransactionDetailRequest.cs`: `IdProduct` (`string`), `Quantity` (`int`).
+  - `CreateTransactionRequest.cs`: `IdPaymentMethod` (`string`), `CustomerMoney` (`decimal`), `Items` (`List<TransactionDetailRequest>`).
+  - `TransactionDetailResponse.cs`: `IdProduct` (`string`), `ProductName` (`string`), `Quantity` (`int`), `Price` (`decimal`), `Subtotal` (`decimal`).
+  - `CreateTransactionResponse.cs`: `InvoiceNo` (`string`), `TransactionDate` (`DateTime`), `CashierId` (`string`), `CashierName` (`string`), `PaymentMethodName` (`string`), `TotalItem` (`int`), `TotalPrice` (`decimal`), `CustomerMoney` (`decimal`), `Change` (`decimal`), `Details` (`List<TransactionDetailResponse>`).
+- Created `TransactionsController` (`BeeMart.Api/Controllers/TransactionsController.cs`) decorated with `[ApiController]`, `[Route("api/v1/transactions")]`, and `[Authorize]`:
+  - **`GET /api/v1/transactions/next-invoice` (`API-TRX-01`)**: Inspects existing `TrTransaction.InvoiceNo` records matching today's prefix (`INV-YYYYMMDD-`), determines the next 4-digit sequence number (`0001` if none exist today), and returns **HTTP 200 OK** wrapped in `ApiResponse<NextInvoiceResponse>`.
+  - **`POST /api/v1/transactions` (`API-TRX-02`)**:
+    - Extracts logged-in cashier/admin identity (`idUser`, `username`, `fullName`) from JWT claims via `ClaimsHelper`.
+    - Validates non-empty `Items` (`"Transaction must contain at least one item"`), positive `Quantity > 0`, active `LtPaymentMethod` (`"Invalid payment method"`), active `MsProduct` existence, sufficient stock (`"Insufficient stock for product: {ProductName}"`), and `CustomerMoney >= TotalPrice` (`"Customer money is insufficient"`).
+    - Executes within an EF Core database transaction (`BeginTransactionAsync`), re-fetches the next invoice number atomically, deducts `MsProduct.Stock` (updating `Dateup` and `Userup`), inserts `TrTransaction` and `TrTransactionDetail` records with audit trail fields (`Stsrc = true`, `DateIn = DateTime.Now`, `UserIn = username`), commits the transaction, and returns **HTTP 201 Created** wrapped in `ApiResponse<CreateTransactionResponse>`.
+
+### Verified
+- Executed `dotnet build BeeMart.sln`: succeeded with `0 Warning(s)` and `0 Error(s)`.
+- Executed live HTTP smoke tests against `https://localhost:7001/api/v1/transactions/next-invoice` and `https://localhost:7001/api/v1/transactions` as Cashier `steven`: verified initial invoice `INV-20261020-0001`, HTTP 400 validation on empty cart, insufficient customer money, and quantity exceeding stock, HTTP 201 on valid cart (`2 Apel Fuji`, `TotalPrice = 70000.00`, `CustomerMoney = 100000`, `Change = 30000.00`, `MsProduct.Stock` decremented from `50` to `48`), and sequence increment to `INV-20261020-0002`.
+- Updated `STRUCTURE.md`, `OPEN-ITEMS.md`, and `CHANGELOG.md`.
+
+---
+
+## [Phase 7] - 2026-10-20 — Backend Master Data Endpoints
+
+### Added
+- Created Master Data DTOs under `BeeMart.Api/Models/DTOs/Master/`:
+  - `PaymentMethodResponse.cs`: `IdPaymentMethod` (`string`), `PaymentMethodName` (`string`).
+  - `ProductSearchItemResponse.cs`: `IdProduct` (`string`), `ProductName` (`string`), `Price` (`decimal`), `Stock` (`int`), `ProductImage` (`string?`).
+  - `ProductSearchResponse.cs`: `Items` (`List<ProductSearchItemResponse>`), `TotalItems` (`int`), `Page` (`int`), `PageSize` (`int`), `TotalPages` (`int`).
+- Created `PaymentMethodsController` (`BeeMart.Api/Controllers/PaymentMethodsController.cs`) decorated with `[ApiController]`, `[Route("api/v1/payment-methods")]`, and `[Authorize]`:
+  - **`GET /api/v1/payment-methods` (`API-PAY-01`)**: Queries active payment methods (`Stsrc == true`) from `dbo.LtPaymentMethod` ordered by `IdPaymentMethod` ascending, maps to `List<PaymentMethodResponse>`, and returns **HTTP 200 OK** wrapped in `ApiResponse<List<PaymentMethodResponse>>`.
+- Created `ProductsController` (`BeeMart.Api/Controllers/ProductsController.cs`) decorated with `[ApiController]`, `[Route("api/v1/products")]`, and `[Authorize]`:
+  - **`GET /api/v1/products/search` (`API-PROD-01`)**: Accepts optional query parameters `search` (`string?`), `page` (`int`, default `1`, min `1`), and `pageSize` (`int`, default `10`, min `1`, max `50`). Filters `dbo.MsProduct` by `Stsrc == true` and `Stock > 0`, applies case-insensitive `Name` contains filtering when `search` is provided, orders by `Name` ascending, calculates `TotalItems` and `TotalPages`, applies `.Skip((page - 1) * pageSize).Take(pageSize)`, and returns **HTTP 200 OK** wrapped in `ApiResponse<ProductSearchResponse>`.
+
+### Verified
+- Executed `dotnet build BeeMart.sln`: succeeded with `0 Warning(s)` and `0 Error(s)`.
+- Executed live HTTP smoke tests against `https://localhost:7001/api/v1/payment-methods` and `https://localhost:7001/api/v1/products/search` verifying HTTP 401 without token, HTTP 200 with Bearer JWT token for payment methods (3 active records), paginated product search (`page=1&pageSize=5`), keyword filtering (`search=Apel`), and exclusion of out-of-stock (`Stock <= 0`) and inactive (`Stsrc == false`) products.
+- Updated `STRUCTURE.md`, `OPEN-ITEMS.md`, and `CHANGELOG.md`.
 
 ---
 

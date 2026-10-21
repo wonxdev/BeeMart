@@ -1,9 +1,30 @@
 @page
 @model IndexModel
 @{
-    ViewData["Title"] = "BeeMart POS";
+    ViewData["Title"] = "Home";
 }
 
-<div>
-    <h1>BeeMart POS</h1>
-</div>
+<section class="card card-amber-top">
+    <div class="card-header">
+        <h1 class="card-title">BeeMart Point of Sale (POS) System</h1>
+        <span class="badge badge-primary">WebClient Ready</span>
+    </div>
+    <div class="card-body">
+        <p class="text-secondary">
+            Selamat datang di aplikasi <strong>BeeMart POS</strong>. Sistem kasir terintegrasi berbasis
+            <strong>.NET 8 Razor Pages</strong> dengan arsitektur <em>Separation of Concerns</em>.
+        </p>
+        <div class="d-flex gap-3 mt-4">
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <a class="btn btn-accent" asp-page="/Transaction/New">Buka Kasir (New Transaction)</a>
+                <a class="btn btn-secondary" asp-page="/Transaction/History">Riwayat Transaksi</a>
+            }
+            else
+            {
+                <a class="btn btn-primary" asp-page="/Auth/Login">Login ke Sistem</a>
+                <a class="btn btn-secondary" asp-page="/Auth/Register">Register Akun Baru</a>
+            }
+        </div>
+    </div>
+</section>

@@ -8,9 +8,42 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
-- **Phase 12**: WebClient New Transaction Page (POS interface).
 - **Phase 13**: WebClient History Page (`Cashier` & `Admin` modes).
 - **Phase 14–15**: Final Checks & Delivery verification.
+
+---
+
+## [Phase 12] - 2026-10-21 — WebClient New Transaction Page (POS Interface)
+
+### Added
+- Created POS Transaction ViewModels and API Response DTOs in `BeeMart.Web/Models/Transaction/`:
+  - `CartItemViewModel.cs`: `IdProduct`, `ProductName`, `Price`, `Quantity`, `MaxStock`, and computed `Subtotal => Price * Quantity`.
+  - `CheckoutRequestViewModel.cs`: `CheckoutRequestViewModel` (`IdPaymentMethod`, `CustomerMoney`, `Items`) and `CheckoutItemRequestViewModel` (`IdProduct`, `Quantity`).
+  - `TransactionApiModels.cs`: `NextInvoiceResponse`, `PaymentMethodResponse`, `ProductSearchItemResponse`, `ProductSearchResponse`, `TransactionDetailResponse`, and `CreateTransactionResponse`.
+- Created the Cashier Point of Sale (POS) Razor Page (`BeeMart.Web/Pages/Transaction/New.cshtml` & `New.cshtml.cs`):
+  - Enforced strict role restriction via `[Authorize(Roles = "Cashier")]` (unauthenticated users redirect to `/Auth/Login`; `Admin` users redirect to `/Auth/AccessDenied`).
+  - Implemented `OnGetAsync` to concurrently fetch the next invoice number (`GET /api/v1/transactions/next-invoice`), active payment methods (`GET /api/v1/payment-methods`), and initial product catalog (`GET /api/v1/products/search`) via `IApiClient`.
+  - Implemented AJAX page handlers `OnGetSearchProductsAsync` (`?handler=SearchProducts`), `OnGetNextInvoiceAsync` (`?handler=NextInvoice`), and `OnPostCheckoutAsync` (`?handler=Checkout` posting to `POST /api/v1/transactions`).
+  - Built a responsive 2-column POS interface with pure custom CSS (`FE-STYLE-001`, zero Bootstrap):
+    - Top POS metadata bar displaying auto-generated read-only `Invoice No`, logged-in Cashier name, and real-time clock.
+    - Product search & catalog section with debounced search + Enter trigger, pagination controls, `"Pilih"` dialog panel (`Barang Terpilih` with unit price, stock, and `Qty` input), and `"+ Keranjang"` quick-add button (disabled when `Stock <= 0`).
+    - Dynamic `Daftar Belanjaan` cart table with `-`/`+`/input quantity controls enforcing `1 <= Quantity <= MaxStock` (`"Jumlah barang yang dimasukkan melebihi sisa stok."`), live `Subtotal`, `Total Item`, and `Total Belanja` in Rupiah (`Rp xx.xxx`), and `Hapus` button.
+    - Payment & checkout section with dynamic payment method dropdown, `Uang Diterima (Customer Money)` input + quick denomination buttons (`Uang Pas`, `Rp 50.000`, `Rp 100.000`, `Rp 200.000`), live `Kembalian (Change)` display, and underpayment/empty-cart submit prevention.
+    - Receipt modal (`#receipt-modal-backdrop`) displaying completed transaction details (`InvoiceNo`, `TransactionDate`, `CashierName`, `PaymentMethodName`, itemized table, `TotalItem`, `TotalPrice`, `CustomerMoney`, `Change`) and a `"Transaksi Baru"` reset button that clears the cart, reloads updated product stocks, and fetches the next sequential invoice number.
+
+### Changed
+- Updated `BeeMart.Web/Pages/_ViewImports.cshtml` to import `@using BeeMart.Web.Models.Transaction`.
+- Updated `BeeMart.Web/Pages/Index.cshtml` to display role-aware `"Transaksi Baru (New Transaction)"` navigation button for `Cashier` users.
+- Extended `BeeMart.Web/wwwroot/css/site.css` with POS layout and receipt modal utility classes (`.pos-layout`, `.pos-meta-bar`, `.qty-control`, `.qty-btn`, `.qty-input`, `.pos-summary-box`, `.receipt-meta-grid`, `.receipt-totals`).
+
+### Verified
+- Executed `dotnet build BeeMart.sln`: succeeded with `0 Warning(s)` and `0 Error(s)`.
+- Verified access control against `http://localhost:5002/Transaction/New`:
+  - Unauthenticated request -> HTTP 302 redirect to `/Auth/Login?ReturnUrl=/Transaction/New`.
+  - Authenticated `Admin` (`admin`) -> HTTP 302 redirect to `/Auth/AccessDenied?ReturnUrl=/Transaction/New`.
+  - Authenticated `Cashier` (`steven`) -> HTTP 200 OK with initial `INV-20261021-0001` and payment methods (`Cash`, `Debit`, `Credit`).
+- Verified end-to-end POS workflow: product search for `"Apel"` (`12` total items, `10` returned on page 1), over-stock rejection (`HTTP 400`, `"Insufficient stock for product: Apel Fuji"`), underpayment rejection (`HTTP 400`, `"Customer money is insufficient"`), valid checkout (`HTTP 201 Created`, `2x Apel Fuji`, `TotalPrice = 70000.00`, `CustomerMoney = 100000`, `Change = 30000.00`), next invoice increment (`INV-20261021-0002`), and database stock deduction (`48 -> 46`).
+- Updated `STRUCTURE.md`, `OPEN-ITEMS.md`, and `CHANGELOG.md`.
 
 ---
 

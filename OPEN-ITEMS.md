@@ -59,10 +59,10 @@ Daftar *to-do* dan status pengerjaan proyek **BeeMart POS Web App** berdasarkan 
 - [x] Implement `Register` page (`/Auth/Register`) with `Username`, `Full Name`, `Password`, `Re-Password`, `Role` dropdown, exact duplicate/error handling (`"username has already exists"`), `TempData["SuccessMessage"]`, and link to Login.
 - [x] Implement `Logout` handler (`/Auth/Logout`) calling `SignOutAsync` and `AccessDenied` page (`/Auth/AccessDenied`), plus dynamic header & role badge updates in `_Layout.cshtml`.
 
-### Phase 12: WebClient New Transaction Page (POS Web Page — Next Open Phase)
-- [ ] Implement `/Transaction/New` page: auto read-only `Invoice No`, product search on `Enter` (max 10 rows), `Pilih` dialog (`Barang Terpilih`, unit price, remaining stock, `Qty` input with stock validation), `Daftar Belanjaan` cart table with `Hapus`, `Total` calculation, dynamic `Metode Pembayaran` dropdown from API, and `Submit Transaksi` with automatic page reset and new invoice number.
+### Phase 12: WebClient New Transaction Page
+- [x] Implement `/Transaction/New` page (`[Authorize(Roles = "Cashier")]`): auto read-only `Invoice No` (`GET /api/v1/transactions/next-invoice`), product search with debounce/Enter and pagination (`GET /api/v1/products/search`), `Pilih` dialog (`Barang Terpilih`, unit price, remaining stock, `Qty` input with stock ceiling validation) + quick-add button, `Daftar Belanjaan` cart table with `-`/`+` quantity controls and `Hapus`, live `Total Item`, `Total Belanja`, `Uang Diterima`, and `Kembalian` calculation, dynamic `Metode Pembayaran` dropdown from `GET /api/v1/payment-methods`, and `Submit Transaksi` (`POST /api/v1/transactions`) with receipt modal and `"Transaksi Baru"` reset.
 
-### Phase 13: WebClient History Page
+### Phase 13: WebClient History Page (Next Open Phase)
 - [ ] Implement `/Transaction/History` page supporting both `Cashier` (`Pencarian Data Transaksi (Hanya Kasir: <username>)`) and `Admin` (`Pencarian Data Transaksi (Menampilkan Semua Kasir)`) views, mandatory date picker (`Pilih Tanggal`), `Cari Data` button, ascending transaction table, and pagination controls (max 20 rows per page).
 
 ### Phase 14–15: Final Checks & Delivery
@@ -154,3 +154,11 @@ Daftar *to-do* dan status pengerjaan proyek **BeeMart POS Web App** berdasarkan 
       - Setelah registrasi berhasil pada `/Auth/Register`, sistem menyimpan `TempData["SuccessMessage"] = "Account registered successfully. Please login."` dan mengarahkan pengguna ke `/Auth/Login`.
       - Setelah login berhasil pada `/Auth/Login`, sistem memeriksa `ReturnUrl` (`Url.IsLocalUrl(returnUrl)`) dan jika tidak ada `ReturnUrl`, mengarahkan pengguna ke `/Index` (yang menampilkan tombol pintasan ke `/Transaction/New` dan `/Transaction/History` untuk Phase 12 & Phase 13).
       - Saat `POST /Auth/Logout` (atau `GET /Auth/Logout`) dipanggil, sistem memanggil `HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme)` untuk menghapus cookie `BeeMart.Auth` dan mengarahkan kembali ke `/Auth/Login`.
+16. **Phase 12 POS Client Architecture, Role Access & State Management Decisions**:
+    - **Cashier-Only Access Enforcement (`[Authorize(Roles = "Cashier")]`)**: Sesuai matriks hak akses Phase 12, halaman `/Transaction/New` (`NewModel`) didekorasi dengan `[Authorize(Roles = "Cashier")]`. Pengguna yang belum login diarahkan ke `/Auth/Login`, pengguna `Admin` diarahkan ke `/Auth/AccessDenied`, dan hanya pengguna `Cashier` yang dapat mengakses antarmuka POS.
+    - **Hybrid SSR + AJAX Handler Architecture via `IApiClient`**:
+      - Saat `GET /Transaction/New` (`OnGetAsync`), server memanggil `transactions/next-invoice`, `payment-methods`, dan `products/search` secara paralel (`Task.WhenAll`) melalui `IApiClient` sehingga halaman langsung ter-render lengkap dengan nomor invoice, metode pembayaran, dan daftar barang awal.
+      - Interaksi dinamis tanpa *full-page reload* (pencarian barang & pindah halaman katalog, submit checkout, serta pengambilan nomor invoice berikutnya setelah transaksi selesai) dilayani oleh Razor Page handlers (`?handler=SearchProducts`, `?handler=Checkout`, dan `?handler=NextInvoice`) yang mem-proxy request ke `BeeMart.Api` menggunakan `IApiClient` (otomatis meneruskan JWT Bearer token dari cookie `BeeMart.Auth`) dan dilindungi dengan token Anti-Forgery (`RequestVerificationToken`).
+    - **Client-Side Cart State & Dual Stock Validation**:
+      - State keranjang (`cart`) dikelola di memori JavaScript pada halaman `/Transaction/New`, mendukung pemilihan barang melalui panel dialog **`Barang Terpilih`** (tombol `Pilih` dengan input `Qty`) maupun tombol cepat **`+ Keranjang`**, serta pengubah kuantitas `-` / input / `+` di tabel `Daftar Belanjaan`.
+      - Batas stok (`1 <= Quantity <= MaxStock`) divalidasi secara langsung di sisi klien (menampilkan alert `"Jumlah barang yang dimasukkan melebihi sisa stok."` bila melebihi stok) dan divalidasi ulang secara atomik oleh `BeeMart.Api` saat checkout (`POST /api/v1/transactions`).

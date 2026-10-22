@@ -14,11 +14,14 @@
             Selamat datang di aplikasi <strong>BeeMart POS</strong>. Sistem kasir terintegrasi berbasis
             <strong>.NET 8 Razor Pages</strong> dengan arsitektur <em>Separation of Concerns</em>.
         </p>
-        <div class="d-flex gap-3 mt-4">
+        <div class="d-flex gap-3 mt-4 flex-wrap">
             @if (User.Identity?.IsAuthenticated == true)
             {
-                <a class="btn btn-accent" asp-page="/Transaction/New">Buka Kasir (New Transaction)</a>
-                <a class="btn btn-secondary" asp-page="/Transaction/History">Riwayat Transaksi</a>
+                @if (User.IsInRole("Cashier"))
+                {
+                    <a class="btn btn-accent" asp-page="/Transaction/New">Transaksi Baru (New Transaction)</a>
+                }
+                <a class="btn btn-secondary" asp-page="/Transaction/History">Riwayat Transaksi (History Transaction)</a>
             }
             else
             {

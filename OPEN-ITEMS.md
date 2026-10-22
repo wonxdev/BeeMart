@@ -62,10 +62,10 @@ Daftar *to-do* dan status pengerjaan proyek **BeeMart POS Web App** berdasarkan 
 ### Phase 12: WebClient New Transaction Page
 - [x] Implement `/Transaction/New` page (`[Authorize(Roles = "Cashier")]`): auto read-only `Invoice No` (`GET /api/v1/transactions/next-invoice`), product search with debounce/Enter and pagination (`GET /api/v1/products/search`), `Pilih` dialog (`Barang Terpilih`, unit price, remaining stock, `Qty` input with stock ceiling validation) + quick-add button, `Daftar Belanjaan` cart table with `-`/`+` quantity controls and `Hapus`, live `Total Item`, `Total Belanja`, `Uang Diterima`, and `Kembalian` calculation, dynamic `Metode Pembayaran` dropdown from `GET /api/v1/payment-methods`, and `Submit Transaksi` (`POST /api/v1/transactions`) with receipt modal and `"Transaksi Baru"` reset.
 
-### Phase 13: WebClient History Page (Next Open Phase)
-- [ ] Implement `/Transaction/History` page supporting both `Cashier` (`Pencarian Data Transaksi (Hanya Kasir: <username>)`) and `Admin` (`Pencarian Data Transaksi (Menampilkan Semua Kasir)`) views, mandatory date picker (`Pilih Tanggal`), `Cari Data` button, ascending transaction table, and pagination controls (max 20 rows per page).
+### Phase 13: WebClient History Page
+- [x] Implement `/Transaction/History` page (`[Authorize]`) supporting both `Cashier` (`Pencarian Data Transaksi (Hanya Kasir: <username>)`, no cashier filter dropdown) and `Admin` (`Pencarian Data Transaksi (Menampilkan Semua Kasir)`, with `Kasir` filter dropdown) views, `Start Date` / `End Date` date pickers, `Filter / Cari` and `Reset` buttons, responsive custom CSS history table with expandable inline line-item details (`Nama Produk`, `Harga Satuan`, `Qty`, `Subtotal`, `Total Item`, `Total Bayar`), and pagination controls preserving active filter parameters.
 
-### Phase 14–15: Final Checks & Delivery
+### Phase 14–15: UI Polish, E2E Validation & Final Delivery (Next Open Phase)
 - [ ] Verify end-to-end flows against all PRD acceptance criteria, confirm zero direct DB access in `BeeMart.Web`, ensure clean build (`dotnet build`), and finalize documentation (`STRUCTURE.md`, `CHANGELOG.md`, `OPEN-ITEMS.md`).
 
 ---
@@ -81,7 +81,7 @@ Daftar *to-do* dan status pengerjaan proyek **BeeMart POS Web App** berdasarkan 
 
 ---
 
-## 3. Notes / Decisions / Blockers (Assumptions Recorded in Phases 1–10)
+## 3. Notes / Decisions / Blockers (Assumptions Recorded in Phases 1–13)
 
 1. **WebClient Project Template Choice (`ASP.NET Core Razor Pages`)**:
    - Sesuai `NFR-TECH-002` dan instruksi Phase 1 Task 3 (*"ASP.NET Core Razor Pages or MVC, net8.0"*), proyek `BeeMart.Web` dibuat menggunakan template **ASP.NET Core Razor Pages** karena sangat selaras dengan pembagian fase berbasis halaman (*Phase 11: Auth Pages*, *Phase 12: Shared Layout*, *Phase 13: New Transaction Page*, *Phase 14: History Page*).
@@ -162,3 +162,11 @@ Daftar *to-do* dan status pengerjaan proyek **BeeMart POS Web App** berdasarkan 
     - **Client-Side Cart State & Dual Stock Validation**:
       - State keranjang (`cart`) dikelola di memori JavaScript pada halaman `/Transaction/New`, mendukung pemilihan barang melalui panel dialog **`Barang Terpilih`** (tombol `Pilih` dengan input `Qty`) maupun tombol cepat **`+ Keranjang`**, serta pengubah kuantitas `-` / input / `+` di tabel `Daftar Belanjaan`.
       - Batas stok (`1 <= Quantity <= MaxStock`) divalidasi secara langsung di sisi klien (menampilkan alert `"Jumlah barang yang dimasukkan melebihi sisa stok."` bila melebihi stok) dan divalidasi ulang secara atomik oleh `BeeMart.Api` saat checkout (`POST /api/v1/transactions`).
+17. **Phase 13 Transaction History UI, Role Differentiation & Line-Item Detail Decisions**:
+    - **Shared `[Authorize]` Access with Role-Differentiated UI (`Cashier` vs `Admin`)**:
+      - Halaman `/Transaction/History` (`HistoryModel`) didekorasi dengan `[Authorize]` sehingga dapat diakses oleh pengguna `Admin` maupun `Cashier`.
+      - Untuk `Cashier`, halaman menampilkan sub-judul `Pencarian Data Transaksi (Hanya Kasir: <username>)`, menyembunyikan dropdown filter `Kasir`, dan mengabaikan parameter query string `cashierId` sebelum memanggil `GET /api/v1/transactions/history` (yang juga menerapkan isolasi `t.IdUser == userId` di sisi API).
+      - Untuk `Admin`, halaman menampilkan sub-judul `Pencarian Data Transaksi (Menampilkan Semua Kasir)` dan menyediakan dropdown `Kasir` (`CashierOptions` dari daftar kasir aktif & hasil transaksi) untuk memfilter berdasarkan `cashierId` tertentu atau menampilkan seluruh kasir.
+    - **Expandable Inline Line-Item Sub-Table & Filter-Preserving Pagination**:
+      - Setiap baris transaksi pada tabel riwayat dilengkapi tombol `Detail` / `Tutup` yang membuka atau menutup baris sub-tabel (`.history-detail-row` / `.history-subtable`) berisi rincian `Nama Produk`, `Harga Satuan`, `Qty`, `Subtotal`, serta footer `Total Item` dan `Total Bayar` dalam format Rupiah (`Rp xx.xxx`).
+      - Tautan navigasi halaman (`Previous`, nomor halaman, `Next`) mempertahankan parameter filter aktif (`startDate`, `endDate`, `cashierId`, `pageSize`) secara utuh.

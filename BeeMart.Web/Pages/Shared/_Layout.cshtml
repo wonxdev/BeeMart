@@ -63,10 +63,13 @@
     {
         <nav class="nav-tabs-bar" aria-label="Main POS Navigation">
             <div class="nav-tabs-inner">
-                <a class="nav-tab @(currentPath.StartsWith("/Transaction/New", StringComparison.OrdinalIgnoreCase) || currentPath.StartsWith("/Transactions/New", StringComparison.OrdinalIgnoreCase) ? "active" : "")"
-                   asp-page="/Transaction/New">
-                    Transaksi Baru (New Transaction)
-                </a>
+                @if (User.IsInRole("Cashier"))
+                {
+                    <a class="nav-tab @(currentPath.StartsWith("/Transaction/New", StringComparison.OrdinalIgnoreCase) || currentPath.StartsWith("/Transactions/New", StringComparison.OrdinalIgnoreCase) ? "active" : "")"
+                       asp-page="/Transaction/New">
+                        Transaksi Baru (New Transaction)
+                    </a>
+                }
                 <a class="nav-tab @(currentPath.StartsWith("/Transaction/History", StringComparison.OrdinalIgnoreCase) || currentPath.StartsWith("/Transactions/History", StringComparison.OrdinalIgnoreCase) ? "active" : "")"
                    asp-page="/Transaction/History">
                     Riwayat Transaksi (History Transaction)

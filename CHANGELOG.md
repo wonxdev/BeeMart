@@ -8,8 +8,36 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
-- **Phase 13**: WebClient History Page (`Cashier` & `Admin` modes).
-- **Phase 14–15**: Final Checks & Delivery verification.
+- **Phase 14–15**: UI Polish, End-to-End (E2E) Validation & Final Delivery verification.
+
+---
+
+## [Phase 13] - 2026-10-22 — WebClient Transaction History Page (Role-Aware)
+
+### Added
+- Created Transaction History ViewModels and DTOs in `BeeMart.Web/Models/Transaction/TransactionHistoryViewModel.cs`:
+  - `TransactionHistoryViewModel`: Filter parameters (`StartDate`, `EndDate`, `CashierId`, `Page`, `PageSize`), paginated response properties (`Items`, `TotalItems`, `TotalPages`, `CurrentPage`), and Admin filter dropdown options (`CashierOptions`).
+  - `TransactionHistoryResponse`, `TransactionHistoryItemViewModel`, `TransactionHistoryItemDetailViewModel`, and `CashierFilterOptionViewModel`.
+- Created the Role-Aware Transaction History Razor Page (`BeeMart.Web/Pages/Transaction/History.cshtml` & `History.cshtml.cs`):
+  - Decorated with `[Authorize]` so both `Admin` and `Cashier` users can access `/Transaction/History` (while unauthenticated users redirect to `/Auth/Login`).
+  - Implemented `OnGetAsync` to resolve user identity/role from Cookie Authentication claims, enforce strict UI/parameter role isolation (`Cashier` ignores any `cashierId` query parameter and hides the Cashier filter selector; `Admin` populates active cashier options and forwards optional `cashierId`), and call `IApiClient.GetAsync<TransactionHistoryResponse>("transactions/history?...")` with automatic JWT Bearer token attachment.
+  - Built a responsive filter bar (`Start Date`, `End Date`, Admin-only `Kasir` dropdown, `Baris / Hal` page size selector, `Filter / Cari`, and `Reset` buttons).
+  - Built a custom CSS transaction history table (`Invoice No`, `Tanggal Transaksi`, `Kasir`, `Metode Pembayaran`, `Total Item`, `Total Belanja`, `Aksi`) with an empty-state message when no transactions match.
+  - Added expandable/collapsible inline line-item detail sub-tables (`Detail` / `Tutup` toggle button) displaying `Nama Produk`, `Harga Satuan`, `Qty`, `Subtotal`, and a summary footer (`Total Item` & `Total Bayar`) formatted in Indonesian Rupiah (`Rp xx.xxx`).
+  - Implemented pagination controls (`Previous`, page numbers, `Next`, and `Page X of Y`) preserving all active filter parameters (`startDate`, `endDate`, `cashierId`, `pageSize`).
+
+### Changed
+- Updated `BeeMart.Web/Pages/Shared/_Layout.cshtml` so the `"Transaksi Baru (New Transaction)"` navigation tab is rendered only for `Cashier` users while `"Riwayat Transaksi (History Transaction)"` is rendered and active-highlighted for both `Admin` and `Cashier` users.
+- Extended `BeeMart.Web/wwwroot/css/site.css` with pure custom CSS classes for the history filter bar and expandable detail sub-tables (`.history-subtitle`, `.history-filter-bar`, `.history-filter-group`, `.history-filter-actions`, `.history-detail-row`, `.history-detail-cell`, `.history-detail-box`, `.history-detail-header`, `.history-subtable`).
+
+### Verified
+- Executed `dotnet build BeeMart.sln`: succeeded with `0 Warning(s)` and `0 Error(s)`.
+- Verified access control and role-based views against `http://localhost:5002/Transaction/History`:
+  - Unauthenticated `GET /Transaction/History` -> HTTP 302 redirect to `/Auth/Login?ReturnUrl=/Transaction/History`.
+  - Authenticated `Cashier` (`steven`) -> HTTP 200 OK, header displays `Role: Cashier | Login: steven`, subtitle displays `Pencarian Data Transaksi (Hanya Kasir: steven)`, Cashier filter dropdown is hidden, only `Steven`'s transactions are displayed (even when attempting `?cashierId=66859`), and expandable line-item detail sub-table renders `Apel Fuji`, `Rp 35.000`, `Qty = 2`, `Subtotal = Rp 70.000`.
+  - Authenticated `Admin` (`admin`) -> HTTP 200 OK, header displays `Role: Admin | Login: admin`, subtitle displays `Pencarian Data Transaksi (Menampilkan Semua Kasir)`, Cashier filter dropdown is visible, transactions across all cashiers (`Steven` and `Gabri`) are displayed, and filtering by `?cashierId=76985` scopes results to `Steven`.
+  - Verified date range filtering (`startDate` & `endDate`) and pagination controls (`page=1&pageSize=1`) maintain filter query parameters across page links.
+- Updated `STRUCTURE.md`, `OPEN-ITEMS.md`, and `CHANGELOG.md`.
 
 ---
 

@@ -1,0 +1,338 @@
+@page
+@model BeeMart.Web.Pages.Transaction.HistoryModel
+@using System.Globalization
+@{
+    ViewData["Title"] = "Riwayat Transaksi (History Transaction)";
+    var idCulture = new CultureInfo("id-ID");
+    string FormatRupiah(decimal amount) => "Rp " + Math.Round(amount).ToString("N0", idCulture);
+    string FormatDateInput(DateTime? date) => date.HasValue ? date.Value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) : string.Empty;
+
+    var vm = Model.ViewModel;
+    var totalPagesDisplay = Math.Max(1, vm.TotalPages);
+}
+
+<section class="card card-amber-top" aria-labelledby="history-heading">
+    <div class="card-header">
+        <div>
+            <h1 class="card-title" id="history-heading">Riwayat Transaksi</h1>
+            <p class="history-subtitle" style="margin-bottom: 0; margin-top: 0.2rem;">
+                @if (Model.IsAdmin)
+                {
+                    <span>Pencarian Data Transaksi (Menampilkan Semua Kasir)</span>
+                }
+                else
+                {
+                    <span>Pencarian Data Transaksi (Hanya Kasir: @Model.CurrentUsername)</span>
+                }
+            </p>
+        </div>
+
+        <div class="d-flex items-center gap-2">
+            <span class="badge @(Model.IsAdmin ? "badge-primary" : "badge-secondary")">
+                @(Model.IsAdmin ? "Mode Admin: Semua Kasir" : $"Mode Kasir: {Model.CurrentFullName}")
+            </span>
+            <span class="badge badge-slate">
+                Total: @vm.TotalItems Transaksi
+            </span>
+        </div>
+    </div>
+
+    <div class="card-body">
+        @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+        {
+            <div class="alert alert-danger" role="alert">
+                <span>@Model.ErrorMessage</span>
+                <button type="button" class="alert-close" data-dismiss="alert" aria-label="Close">&times;</button>
+            </div>
+        }
+
+        <!-- Filter Bar Section -->
+        <form method="get" asp-page="/Transaction/History" class="history-filter-bar" aria-label="Filter Riwayat Transaksi">
+            <input type="hidden" name="page" value="1" />
+
+            <div class="history-filter-group">
+                <label class="form-label" for="filter-start-date">Start Date (Dari Tanggal):</label>
+                <input type="date"
+                       id="filter-start-date"
+                       name="startDate"
+                       class="form-control"
+                       value="@FormatDateInput(vm.StartDate)" />
+            </div>
+
+            <div class="history-filter-group">
+                <label class="form-label" for="filter-end-date">End Date (Sampai Tanggal):</label>
+                <input type="date"
+                       id="filter-end-date"
+                       name="endDate"
+                       class="form-control"
+                       value="@FormatDateInput(vm.EndDate)" />
+            </div>
+
+            @if (Model.IsAdmin)
+            {
+                <div class="history-filter-group">
+                    <label class="form-label" for="filter-cashier-select">Kasir:</label>
+                    <select id="filter-cashier-select" name="cashierId" class="form-select">
+                        <option value="">-- Semua Kasir --</option>
+                        @foreach (var cashier in vm.CashierOptions)
+                        {
+                            var isSelected = string.Equals(vm.CashierId, cashier.CashierId, StringComparison.OrdinalIgnoreCase);
+                            <option value="@cashier.CashierId" selected="@(isSelected ? "selected" : null)">
+                                @cashier.DisplayLabel
+                            </option>
+                        }
+                    </select>
+                </div>
+            }
+
+            <div class="history-filter-group" style="max-width: 140px;">
+                <label class="form-label" for="filter-page-size">Baris / Hal:</label>
+                <select id="filter-page-size" name="pageSize" class="form-select">
+                    @foreach (var sizeOption in new[] { 5, 10, 20 })
+                    {
+                        <option value="@sizeOption" selected="@(vm.PageSize == sizeOption ? "selected" : null)">
+                            @sizeOption data
+                        </option>
+                    }
+                </select>
+            </div>
+
+            <div class="history-filter-actions">
+                <button type="submit" class="btn btn-accent">Filter / Cari</button>
+                <a asp-page="/Transaction/History" class="btn btn-secondary">Reset</a>
+            </div>
+        </form>
+
+        <!-- History Table Section -->
+        <div class="table-responsive">
+            <table class="table table-striped" aria-label="Tabel Riwayat Transaksi">
+                <thead>
+                    <tr>
+                        <th>Invoice No</th>
+                        <th>Tanggal Transaksi</th>
+                        <th>Kasir</th>
+                        <th>Metode Pembayaran</th>
+                        <th class="text-center">Total Item</th>
+                        <th class="text-right">Total Belanja</th>
+                        <th class="text-center">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="history-table-tbody">
+                    @if (vm.Items.Count == 0)
+                    {
+                        <tr>
+                            <td colspan="7" class="table-empty">
+                                Tidak ada data riwayat transaksi yang sesuai dengan kriteria pencarian.
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @for (var i = 0; i < vm.Items.Count; i++)
+                        {
+                            var trx = vm.Items[i];
+                            var detailRowId = $"detail-row-{i}";
+                            <tr data-transaction-id="@trx.IdTransaction">
+                                <td class="font-mono font-bold text-accent">@trx.InvoiceNo</td>
+                                <td>@trx.TransactionDate.ToString("dd MMM yyyy, HH:mm:ss", idCulture)</td>
+                                <td>
+                                    <div class="font-semibold">@trx.CashierName</div>
+                                    <span class="text-muted" style="font-size: 0.75rem;">ID: @trx.CashierId</span>
+                                </td>
+                                <td>
+                                    <span class="badge badge-secondary">@trx.PaymentMethodName</span>
+                                </td>
+                                <td class="text-center font-bold">@trx.TotalItem</td>
+                                <td class="text-right price-text">@FormatRupiah(trx.TotalPrice)</td>
+                                <td class="text-center">
+                                    <button type="button"
+                                            class="btn btn-primary btn-sm js-toggle-detail"
+                                            data-target="@detailRowId"
+                                            aria-expanded="false"
+                                            aria-controls="@detailRowId">
+                                        Detail
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr id="@detailRowId" class="history-detail-row" style="display: none;">
+                                <td colspan="7" class="history-detail-cell">
+                                    <div class="history-detail-box">
+                                        <div class="history-detail-header">
+                                            <div>
+                                                <strong>Rincian Pembelian &mdash; <span class="font-mono">@trx.InvoiceNo</span></strong>
+                                                <span class="text-muted" style="margin-left: 0.5rem;">
+                                                    (@trx.TransactionDate.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture) | Kasir: @trx.CashierName | @trx.PaymentMethodName)
+                                                </span>
+                                            </div>
+                                            <button type="button"
+                                                    class="btn btn-secondary btn-sm js-close-detail"
+                                                    data-target="@detailRowId">
+                                                Tutup Rincian
+                                            </button>
+                                        </div>
+
+                                        <div class="table-responsive">
+                                            <table class="history-subtable" aria-label="Rincian Item Transaksi @trx.InvoiceNo">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Nama Produk</th>
+                                                        <th class="text-right">Harga Satuan</th>
+                                                        <th class="text-center">Qty</th>
+                                                        <th class="text-right">Subtotal</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @if (trx.Details.Count == 0)
+                                                    {
+                                                        <tr>
+                                                            <td colspan="4" class="table-empty">Tidak ada rincian produk.</td>
+                                                        </tr>
+                                                    }
+                                                    else
+                                                    {
+                                                        @foreach (var item in trx.Details)
+                                                        {
+                                                            <tr>
+                                                                <td class="font-semibold">@item.ProductName</td>
+                                                                <td class="text-right price-text">@FormatRupiah(item.Price)</td>
+                                                                <td class="text-center font-bold">@item.Quantity</td>
+                                                                <td class="text-right price-text">@FormatRupiah(item.Subtotal)</td>
+                                                            </tr>
+                                                        }
+                                                    }
+                                                </tbody>
+                                                <tfoot>
+                                                    <tr>
+                                                        <td colspan="2" class="text-right">Total Item &amp; Total Bayar:</td>
+                                                        <td class="text-center">@trx.TotalItem item</td>
+                                                        <td class="text-right price-text text-accent">@FormatRupiah(trx.TotalPrice)</td>
+                                                    </tr>
+                                                </tfoot>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination Controls -->
+        <div class="d-flex items-center justify-between flex-wrap mt-4 gap-2" aria-label="Navigasi Halaman Riwayat Transaksi">
+            <div class="text-muted">
+                Page <strong>@vm.CurrentPage</strong> of <strong>@totalPagesDisplay</strong>
+                (Total <strong>@vm.TotalItems</strong> transaksi)
+            </div>
+
+            <div class="pagination" style="margin-top: 0;">
+                @{
+                    var prevDisabled = vm.CurrentPage <= 1;
+                    var nextDisabled = vm.CurrentPage >= totalPagesDisplay;
+                    var startStr = FormatDateInput(vm.StartDate);
+                    var endStr = FormatDateInput(vm.EndDate);
+                    var cashierParam = Model.IsAdmin ? vm.CashierId : null;
+                }
+
+                <a asp-page="/Transaction/History"
+                   asp-route-startDate="@(string.IsNullOrEmpty(startStr) ? null : startStr)"
+                   asp-route-endDate="@(string.IsNullOrEmpty(endStr) ? null : endStr)"
+                   asp-route-cashierId="@(string.IsNullOrEmpty(cashierParam) ? null : cashierParam)"
+                   asp-route-page="@(Math.Max(1, vm.CurrentPage - 1))"
+                   asp-route-pageSize="@vm.PageSize"
+                   class="page-link @(prevDisabled ? "disabled" : "")"
+                   aria-disabled="@(prevDisabled ? "true" : "false")">
+                    &laquo; Previous
+                </a>
+
+                @for (var p = 1; p <= totalPagesDisplay; p++)
+                {
+                    if (p == 1 || p == totalPagesDisplay || Math.Abs(p - vm.CurrentPage) <= 2)
+                    {
+                        <a asp-page="/Transaction/History"
+                           asp-route-startDate="@(string.IsNullOrEmpty(startStr) ? null : startStr)"
+                           asp-route-endDate="@(string.IsNullOrEmpty(endStr) ? null : endStr)"
+                           asp-route-cashierId="@(string.IsNullOrEmpty(cashierParam) ? null : cashierParam)"
+                           asp-route-page="@p"
+                           asp-route-pageSize="@vm.PageSize"
+                           class="page-link @(p == vm.CurrentPage ? "active" : "")">
+                            @p
+                        </a>
+                    }
+                }
+
+                <a asp-page="/Transaction/History"
+                   asp-route-startDate="@(string.IsNullOrEmpty(startStr) ? null : startStr)"
+                   asp-route-endDate="@(string.IsNullOrEmpty(endStr) ? null : endStr)"
+                   asp-route-cashierId="@(string.IsNullOrEmpty(cashierParam) ? null : cashierParam)"
+                   asp-route-page="@(Math.Min(totalPagesDisplay, vm.CurrentPage + 1))"
+                   asp-route-pageSize="@vm.PageSize"
+                   class="page-link @(nextDisabled ? "disabled" : "")"
+                   aria-disabled="@(nextDisabled ? "true" : "false")">
+                    Next &raquo;
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        (function () {
+            "use strict";
+
+            var historyTbody = document.getElementById("history-table-tbody");
+            if (!historyTbody) {
+                return;
+            }
+
+            function toggleDetailRow(targetId, forceClose) {
+                if (!targetId) {
+                    return;
+                }
+
+                var detailRow = document.getElementById(targetId);
+                if (!detailRow) {
+                    return;
+                }
+
+                var toggleBtn = historyTbody.querySelector('.js-toggle-detail[data-target="' + targetId + '"]');
+                var isCurrentlyHidden = detailRow.style.display === "none" || detailRow.style.display === "";
+
+                if (forceClose || !isCurrentlyHidden) {
+                    detailRow.style.display = "none";
+                    if (toggleBtn) {
+                        toggleBtn.textContent = "Detail";
+                        toggleBtn.setAttribute("aria-expanded", "false");
+                        toggleBtn.classList.remove("btn-secondary");
+                        toggleBtn.classList.add("btn-primary");
+                    }
+                } else {
+                    detailRow.style.display = "table-row";
+                    if (toggleBtn) {
+                        toggleBtn.textContent = "Tutup";
+                        toggleBtn.setAttribute("aria-expanded", "true");
+                        toggleBtn.classList.remove("btn-primary");
+                        toggleBtn.classList.add("btn-secondary");
+                    }
+                }
+            }
+
+            historyTbody.addEventListener("click", function (e) {
+                var toggleBtn = e.target.closest(".js-toggle-detail");
+                if (toggleBtn) {
+                    var targetId = toggleBtn.getAttribute("data-target");
+                    toggleDetailRow(targetId, false);
+                    return;
+                }
+
+                var closeBtn = e.target.closest(".js-close-detail");
+                if (closeBtn) {
+                    var closeTargetId = closeBtn.getAttribute("data-target");
+                    toggleDetailRow(closeTargetId, true);
+                }
+            });
+        })();
+    </script>
+}

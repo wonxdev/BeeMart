@@ -1,142 +1,102 @@
-# BeeMart POS Web App
+# BeeMart POS
 
-**BeeMart** is a Point of Sale (POS) web application built for the **Binus IT Bootcamp .NET C# Test (2026/2027)**. The solution is built on **.NET 8** using a strict **Separation of Concerns** architecture consisting of two independent projects:
+![.NET 8](https://img.shields.io/badge/.NET-8.0-512BD4?logo=dotnet&logoColor=white)
+![ASP.NET Core](https://img.shields.io/badge/ASP.NET_Core-Web_API_%26_Razor_Pages-512BD4)
+![SQL Server](https://img.shields.io/badge/Database-MS_SQL_Server-CC2927?logo=microsoftsqlserver&logoColor=white)
+![Version](https://img.shields.io/badge/Version-1.0.0-10B981)
 
-- a **Backend RESTful API** (`BeeMart.Api`) that centralizes all business logic and SQL Server data persistence via Entity Framework Core, and
-- a **WebClient UI** (`BeeMart.Web`) that acts strictly as an HTTP/JSON consumer with zero direct database access.
-
----
-
-## Tech Stack
-
-- **Runtime & SDK**: .NET 8 (`net8.0`, C#)
-- **Backend (`BeeMart.Api`)**: ASP.NET Core Web API (Controller-based, `/api/v1/...`), Entity Framework Core 8 (`Microsoft.EntityFrameworkCore.SqlServer`)
-- **Frontend (`BeeMart.Web`)**: ASP.NET Core Razor Pages, pure custom CSS (no Bootstrap), vanilla JavaScript, `HttpClient` JSON consumer
-- **Database**: Microsoft SQL Server (`Database/BeeMart.sql` — idempotent T-SQL DDL + DML seed script)
-- **Password Hashing**: BCrypt (`BCrypt.Net-Next`, work factor 11)
+**BeeMart POS** is a full-stack Point of Sale web application built with **.NET 8**, **Entity Framework Core 8**, **ASP.NET Core Razor Pages**, and **Microsoft SQL Server**. We designed this project around a strict two-tier architecture that separates backend business logic and data persistence from the frontend web interface.
 
 ---
 
-## Repository Layout
+## Architecture Overview
+
+The solution (`BeeMart.sln`) is split into two independent projects:
+
+1. **`BeeMart.Api` (Backend REST API — Port `5001` / `7001`)**
+   Centralizes all business rules, BCrypt password hashing, JWT token generation, and SQL Server access via Entity Framework Core (`BeeMartDbContext`).
+2. **`BeeMart.Web` (Frontend Web Client — Port `5002` / `7002`)**
+   An ASP.NET Core Razor Pages application styled with pure custom CSS (zero Bootstrap/Tailwind). It has no database packages or connection strings and communicates with `BeeMart.Api` exclusively over HTTP/JSON via a typed `IApiClient` service.
 
 ```text
-BeeMart/
-├── BeeMart.sln              # Visual Studio / .NET Solution file
-├── Database/
-│   └── BeeMart.sql          # Idempotent SQL Server DDL + Seed Data (DML) script
-├── BeeMart.Api/             # Backend RESTful API (https://localhost:7001)
-├── BeeMart.Web/             # WebClient Razor Pages UI (https://localhost:7002)
-├── PRD.md                   # Product Requirements Document
-├── STRUCTURE.md             # Detailed directory & file architecture documentation
-├── CHANGELOG.md             # Phase-by-phase change history
-├── OPEN-ITEMS.md            # 15-phase roadmap, task checklist, and technical notes
-├── README.md                # Setup guide and project overview
-├── .gitignore               # Standard .NET / Visual Studio Git ignore rules
-└── .gitattributes           # Line-ending normalization rules
+[ Browser ] ──► [ BeeMart.Web (Port 5002) ] ──HTTP/JSON (JWT)──► [ BeeMart.Api (Port 5001) ] ──EF Core──► [ SQL Server: BeeMart ]
 ```
-
-See [`STRUCTURE.md`](STRUCTURE.md) for the complete file inventory and component relationship diagram.
 
 ---
 
 ## Prerequisites
 
-1. **.NET 8 SDK** (or newer SDK with the `.NET 8.0` runtime installed).
-2. **Microsoft SQL Server** or **SQL Server Express** (e.g., `localhost` or `localhost\SQLEXPRESS`).
-3. **`sqlcmd`** CLI utility or **SQL Server Management Studio (SSMS)** to execute the database script.
+- **.NET 8 SDK** (`net8.0`)
+- **Microsoft SQL Server** or **SQL Server Express** (`localhost` or `localhost\SQLEXPRESS`)
+- **`sqlcmd`** CLI utility or **SQL Server Management Studio (SSMS)**
 
 ---
 
-## Setup Steps
+## Quick Start / How to Run
 
 ### 1. Initialize & Seed the Database
 
-Run the idempotent script [`Database/BeeMart.sql`](Database/BeeMart.sql) to create the `BeeMart` database, tables, constraints, indexes, and initial seed data (`LtPaymentMethod`, `MsUser`, and `MsProduct`).
+Run the idempotent script [`Database/BeeMart.sql`](Database/BeeMart.sql) to create the `BeeMart` database, tables, indexes, and seed data (3 payment methods, 6 staff users, and 22 grocery products).
 
-**Using `sqlcmd` (SQL Server Express example):**
-
+**Option A — Using `sqlcmd`:**
 ```powershell
 sqlcmd -S "localhost\SQLEXPRESS" -E -C -b -i "Database\BeeMart.sql"
 ```
-
 *(If using a default SQL Server instance, replace `"localhost\SQLEXPRESS"` with `"localhost"`.)*
 
-**Using SQL Server Management Studio (SSMS):**
+**Option B — Using SSMS:**
+Open `Database/BeeMart.sql` in SQL Server Management Studio and press `F5` to execute.
 
-Open `Database/BeeMart.sql` in SSMS, connect to your local SQL Server instance, and execute the script (`F5`). The script is re-runnable and safe to execute multiple times.
+### 2. Verify the Connection String
 
-### 2. Check the Database Connection String
-
-The Backend API connection string is configured in [`BeeMart.Api/appsettings.json`](BeeMart.Api/appsettings.json) under `ConnectionStrings:DefaultConnection`:
+Check [`BeeMart.Api/appsettings.json`](BeeMart.Api/appsettings.json) under `ConnectionStrings:DefaultConnection` and make sure the `Server` value matches your local SQL Server instance:
 
 ```json
 "ConnectionStrings": {
-  "DefaultConnection": "Server=localhost;Database=BeeMart;Trusted_Connection=True;TrustServerCertificate=True;"
+  "DefaultConnection": "Server=localhost\\SQLEXPRESS;Database=BeeMart;Trusted_Connection=True;TrustServerCertificate=True;"
 }
 ```
 
-> **Note:** If your local SQL Server runs as a named instance such as `localhost\SQLEXPRESS`, update `Server=localhost` to `Server=localhost\\SQLEXPRESS` (scheduled in Phase 4 when `BeeMartDbContext` is wired up).
+### 3. Run the Backend API (Port 5001)
 
-### 3. Trust the Local HTTPS Development Certificate
-
-Ensure the local ASP.NET Core HTTPS development certificate is trusted:
+Open a terminal at the repository root and start `BeeMart.Api`:
 
 ```powershell
-dotnet dev-certs https --trust
+dotnet run --project BeeMart.Api --launch-profile http
 ```
+The API will listen on `http://localhost:5001` (or use `--launch-profile https` for `https://localhost:7001` and `http://localhost:5001`).
 
-### 4. Run the Backend API and WebClient
+### 4. Run the Web Frontend (Port 5002)
 
-Run both projects in separate terminals using their configured fixed ports.
-
-**Terminal 1 — Backend API (`https://localhost:7001`):**
+Open a second terminal at the repository root and start `BeeMart.Web`:
 
 ```powershell
-dotnet run --project BeeMart.Api --launch-profile https
+dotnet run --project BeeMart.Web --launch-profile http
 ```
-
-**Terminal 2 — WebClient UI (`https://localhost:7002`):**
-
-```powershell
-dotnet run --project BeeMart.Web --launch-profile https
-```
+Open your browser and navigate to **`http://localhost:5002`** (or `https://localhost:7002` with `--launch-profile https`).
 
 ---
 
-## Seeded Accounts (Local Development Only)
+## Default Seed Credentials
 
-All 6 users seeded by `Database/BeeMart.sql` are stored with **BCrypt password hashes** (work factor 11). For local development and testing only, all seeded accounts share the following development password:
+All seeded users in `Database/BeeMart.sql` are stored as BCrypt hashes (work factor 11) and share the same local development password:
 
-- **Shared Development Password (local dev only):** `Password123!`
+- **Default Password:** `Password123!`
 
-| `IdUser` | Username | Full Name | Role      | UI Role Label |
-| :------- | :------- | :-------- | :-------- | :------------ |
-| `00001`  | `admin`  | Admin     | `Admin`   | Admin         |
-| `76985`  | `steven` | Steven    | `Cashier` | Kasir         |
-| `66859`  | `gabri`  | Gabri     | `Cashier` | Kasir         |
-| `55794`  | `mona`   | Mona      | `Cashier` | Kasir         |
-| `78886`  | `felix`  | Felix     | `Cashier` | Kasir         |
-| `55356`  | `gobuta` | Gobuta    | `Cashier` | Kasir         |
+| User ID | Username | Full Name | Role | Access Scope |
+| :--- | :--- | :--- | :--- | :--- |
+| `00001` | `admin` | Admin | `Admin` | Global transaction history across all cashiers |
+| `76985` | `steven` | Steven | `Cashier` | POS cash register + personal transaction history |
+| `66859` | `gabri` | Gabri | `Cashier` | POS cash register + personal transaction history |
+| `55794` | `mona` | Mona | `Cashier` | POS cash register + personal transaction history |
+| `78886` | `felix` | Felix | `Cashier` | POS cash register + personal transaction history |
+| `55356` | `gobuta` | Gobuta | `Cashier` | POS cash register + personal transaction history |
 
 ---
 
-## Project Status & Documentation
+## Project Documentation
 
-This project is being built incrementally across **15 phases**.
-
-**Completed:**
-
-- **Phase 1**: Solution & Project Scaffolding (`BeeMart.sln`, `BeeMart.Api`, `BeeMart.Web`)
-- **Phase 2**: Database Schema DDL (`Database/BeeMart.sql`)
-- **Phase 3**: Database Seed Data DML (`LtPaymentMethod`, `MsUser`, `MsProduct` in `Database/BeeMart.sql`)
-
-**In Progress / Upcoming (Phases 4–15):**
-
-- EF Core entities & `BeeMartDbContext`, JWT authentication & BCrypt verification, REST API endpoints (`/api/v1/...`), and WebClient Razor Pages UI (`Login`, `Register`, `New Transaction`, `History Transaction`) are not built yet and are tracked in [`OPEN-ITEMS.md`](OPEN-ITEMS.md).
-
-### Project Documentation Files
-
-- [`PRD.md`](PRD.md) — Product Requirements Document and specifications.
-- [`STRUCTURE.md`](STRUCTURE.md) — Solution architecture, directory tree, and file inventory.
-- [`CHANGELOG.md`](CHANGELOG.md) — Detailed history of changes across phases.
-- [`OPEN-ITEMS.md`](OPEN-ITEMS.md) — Phase checklist, remaining tasks (Phases 4–15), and technical decisions.
+- [`SPECIFICATION.md`](SPECIFICATION.md) — Functional and technical specifications, database schema, role matrix, and workflows.
+- [`STRUCTURE.md`](STRUCTURE.md) — Solution directory tree and component overview.
+- [`CHANGELOG.md`](CHANGELOG.md) — Release history for `v1.0.0`.
+- [`OPEN-ITEMS.md`](OPEN-ITEMS.md) — Project completion status and future enhancement ideas.

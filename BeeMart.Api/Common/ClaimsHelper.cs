@@ -15,9 +15,6 @@ public static class ClaimsHelper
     public const string AdminRole = "Admin";
     public const string CashierRole = "Cashier";
 
-    /// <summary>
-    /// Returns the 5-digit <c>IdUser</c> string from the authenticated principal.
-    /// </summary>
     public static string GetUserId(this ClaimsPrincipal? principal)
     {
         if (principal is null)
@@ -30,9 +27,6 @@ public static class ClaimsHelper
             ?? string.Empty;
     }
 
-    /// <summary>
-    /// Returns the <c>Username</c> string from the authenticated principal.
-    /// </summary>
     public static string GetUsername(this ClaimsPrincipal? principal)
     {
         if (principal is null)
@@ -45,9 +39,6 @@ public static class ClaimsHelper
             ?? string.Empty;
     }
 
-    /// <summary>
-    /// Returns the <c>FullName</c> string from the authenticated principal.
-    /// </summary>
     public static string GetFullName(this ClaimsPrincipal? principal)
     {
         if (principal is null)
@@ -58,9 +49,6 @@ public static class ClaimsHelper
         return principal.FindFirstValue(FullNameClaimType) ?? string.Empty;
     }
 
-    /// <summary>
-    /// Returns the <c>Role</c> string (<c>"Admin"</c> or <c>"Cashier"</c>) from the authenticated principal.
-    /// </summary>
     public static string GetRole(this ClaimsPrincipal? principal)
     {
         if (principal is null)
@@ -73,19 +61,9 @@ public static class ClaimsHelper
             ?? string.Empty;
     }
 
-    /// <summary>
-    /// Returns <c>true</c> if the authenticated user has the <c>Admin</c> role.
-    /// </summary>
-    public static bool IsAdmin(this ClaimsPrincipal? principal)
-    {
-        return string.Equals(principal.GetRole(), AdminRole, StringComparison.Ordinal);
-    }
+    public static bool IsAdmin(this ClaimsPrincipal? principal) =>
+        string.Equals(principal.GetRole(), AdminRole, StringComparison.Ordinal);
 
-    /// <summary>
-    /// Returns <c>true</c> if the authenticated user has the <c>Cashier</c> role.
-    /// </summary>
-    public static bool IsCashier(this ClaimsPrincipal? principal)
-    {
-        return string.Equals(principal.GetRole(), CashierRole, StringComparison.Ordinal);
-    }
+    public static bool IsCashier(this ClaimsPrincipal? principal) =>
+        string.Equals(principal.GetRole(), CashierRole, StringComparison.Ordinal);
 }

@@ -23,7 +23,7 @@ public class PaymentMethodsController : ControllerBase
     }
 
     /// <summary>
-    /// Retrieves all active payment methods (<c>API-PAY-01</c>).
+    /// Retrieves all active payment methods.
     /// Accessible by authenticated <c>Admin</c> and <c>Cashier</c> users.
     /// </summary>
     [HttpGet]

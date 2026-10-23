@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 namespace BeeMart.Api.Common;
 
 /// <summary>
-/// Generic standard JSON API response wrapper matching PRD Section 6.2.
+/// Generic standard JSON API response wrapper.
 /// </summary>
 /// <typeparam name="T">The payload data type.</typeparam>
 public class ApiResponse<T>
@@ -41,7 +41,7 @@ public class ApiResponse<T>
 }
 
 /// <summary>
-/// Non-generic standard JSON API response wrapper and factory helper matching PRD Section 6.2.
+/// Non-generic standard JSON API response wrapper and factory helper.
 /// </summary>
 public class ApiResponse : ApiResponse<object?>
 {

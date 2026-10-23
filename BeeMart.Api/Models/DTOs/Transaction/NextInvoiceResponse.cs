@@ -1,7 +1,7 @@
 namespace BeeMart.Api.Models.DTOs.Transaction;
 
 /// <summary>
-/// Response payload for <c>GET /api/v1/transactions/next-invoice</c> (<c>API-TRX-01</c>).
+/// Response payload for <c>GET /api/v1/transactions/next-invoice</c>.
 /// </summary>
 public class NextInvoiceResponse
 {

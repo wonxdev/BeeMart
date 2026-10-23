@@ -24,7 +24,7 @@ public class TransactionsController : ControllerBase
     }
 
     /// <summary>
-    /// Generates the next sequential invoice number for the current date (<c>API-TRX-01</c>).
+    /// Generates the next sequential invoice number for the current date.
     /// Format: <c>INV-YYYYMMDD-XXXX</c> (e.g., <c>INV-20261020-0001</c>).
     /// Accessible by authenticated <c>Cashier</c> and <c>Admin</c> users.
     /// </summary>
@@ -42,7 +42,7 @@ public class TransactionsController : ControllerBase
     }
 
     /// <summary>
-    /// Validates and creates a new POS transaction atomically (<c>API-TRX-02</c>).
+    /// Validates and creates a new POS transaction atomically.
     /// Accessible by authenticated <c>Cashier</c> and <c>Admin</c> users.
     /// </summary>
     [HttpPost]
@@ -214,7 +214,7 @@ public class TransactionsController : ControllerBase
     }
 
     /// <summary>
-    /// Retrieves paginated transaction history with strict role isolation (<c>API-HIST-01</c>, <c>NFR-SEC-002</c>).
+    /// Retrieves paginated transaction history with role-based scoping.
     /// <c>Cashier</c> users can only view their own transactions; <c>Admin</c> users can view all transactions and optionally filter by <c>cashierId</c>.
     /// </summary>
     [HttpGet("history")]
@@ -252,9 +252,7 @@ public class TransactionsController : ControllerBase
             .AsNoTracking()
             .Where(t => t.Stsrc);
 
-        // Role Isolation Enforcement (NFR-SEC-002):
-        // Cashiers are strictly scoped to their own IdUser; any cashierId query param is ignored.
-        // Admins can view all transactions or optionally filter by cashierId.
+        // Cashiers are scoped to their own IdUser; Admins can view all transactions or filter by cashierId.
         if (isCashier)
         {
             query = query.Where(t => t.IdUser == userId);

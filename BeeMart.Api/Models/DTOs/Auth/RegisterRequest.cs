@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 namespace BeeMart.Api.Models.DTOs.Auth;
 
 /// <summary>
-/// Request payload for <c>POST /api/v1/auth/register</c> (<c>API-AUTH-02</c>).
+/// Request payload for <c>POST /api/v1/auth/register</c>.
 /// </summary>
 public class RegisterRequest
 {

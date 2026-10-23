@@ -1,12 +1,10 @@
-// ============================================================================
-// BeeMart POS Web App — Core Client-Side Utilities (Vanilla JS)
-// ============================================================================
+// BeeMart POS Web App — Core Client-Side Utilities
 
 (function () {
     "use strict";
 
     /**
-     * Formats a Date object as "<M/d/yyyy, HH.mm.ss>" matching PRD FR-NAV-001.
+     * Formats a Date object as "<M/d/yyyy, HH.mm.ss>".
      * Example: "4/9/2026, 10.32.46"
      */
     function formatRealtimeClock(date) {
@@ -20,7 +18,7 @@
     }
 
     /**
-     * Formats a numeric value in Indonesian Rupiah ("Rp 35.000") matching PRD FE-STYLE-002.
+     * Formats a numeric value in Indonesian Rupiah ("Rp 35.000").
      */
     function formatRupiah(amount) {
         var numeric = Number(amount) || 0;

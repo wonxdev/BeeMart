@@ -1,7 +1,7 @@
 namespace BeeMart.Api.Models.DTOs.Transaction;
 
 /// <summary>
-/// Request payload for <c>POST /api/v1/transactions</c> (<c>API-TRX-02</c>).
+/// Request payload for <c>POST /api/v1/transactions</c>.
 /// </summary>
 public class CreateTransactionRequest
 {

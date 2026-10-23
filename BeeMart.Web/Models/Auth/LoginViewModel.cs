@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 namespace BeeMart.Web.Models.Auth;
 
 /// <summary>
-/// ViewModel for the Login Razor Page (<c>/Auth/Login</c>, <c>FEAT-AUTH-01</c>).
+/// ViewModel for the Login Razor Page (<c>/Auth/Login</c>).
 /// </summary>
 public class LoginViewModel
 {
@@ -23,7 +23,7 @@ public class LoginViewModel
 }
 
 /// <summary>
-/// Request payload sent by <c>BeeMart.Web</c> to <c>POST /api/v1/auth/login</c> (<c>API-AUTH-01</c>).
+/// Request payload sent by <c>BeeMart.Web</c> to <c>POST /api/v1/auth/login</c>.
 /// </summary>
 public class LoginRequest
 {
@@ -38,7 +38,7 @@ public class LoginRequest
 }
 
 /// <summary>
-/// Response payload returned by <c>POST /api/v1/auth/login</c> (<c>API-AUTH-01</c>).
+/// Response payload returned by <c>POST /api/v1/auth/login</c>.
 /// </summary>
 public class LoginResponse
 {

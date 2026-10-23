@@ -23,7 +23,7 @@ public class ProductsController : ControllerBase
     }
 
     /// <summary>
-    /// Searches active in-stock products with pagination (<c>API-PROD-01</c>).
+    /// Searches active in-stock products with pagination.
     /// Accessible by authenticated <c>Admin</c> and <c>Cashier</c> users.
     /// </summary>
     [HttpGet("search")]

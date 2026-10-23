@@ -65,12 +65,26 @@ Daftar *to-do* dan status pengerjaan proyek **BeeMart POS Web App** berdasarkan 
 ### Phase 13: WebClient History Page
 - [x] Implement `/Transaction/History` page (`[Authorize]`) supporting both `Cashier` (`Pencarian Data Transaksi (Hanya Kasir: <username>)`, no cashier filter dropdown) and `Admin` (`Pencarian Data Transaksi (Menampilkan Semua Kasir)`, with `Kasir` filter dropdown) views, `Start Date` / `End Date` date pickers, `Filter / Cari` and `Reset` buttons, responsive custom CSS history table with expandable inline line-item details (`Nama Produk`, `Harga Satuan`, `Qty`, `Subtotal`, `Total Item`, `Total Bayar`), and pagination controls preserving active filter parameters.
 
-### Phase 14–15: UI Polish, E2E Validation & Final Delivery (Next Open Phase)
-- [ ] Verify end-to-end flows against all PRD acceptance criteria, confirm zero direct DB access in `BeeMart.Web`, ensure clean build (`dotnet build`), and finalize documentation (`STRUCTURE.md`, `CHANGELOG.md`, `OPEN-ITEMS.md`).
+### Phase 14–15: UI Polish, E2E Validation & Final Delivery Sign-Off
+- [x] **Phase 14**: Perform complete Architecture & Dependency Audit (`NFR-ARCH-001/002`), Styling & Asset Audit (`FE-STYLE-001`), Frozen Files & Repository Hygiene Audit, Full Solution Clean & Build (`0 Warning(s)`, `0 Error(s)`), and Automated End-to-End (E2E) Regression Test Suite across Auth, Master Data, POS Transactions, Role-Isolated History, and WebClient Route Security.
+- [x] **Phase 15**: Finalize living documentation (`STRUCTURE.md`, `CHANGELOG.md`, `OPEN-ITEMS.md`) and complete Final Delivery Sign-Off (`[v1.0.0]`).
 
 ---
 
-## 2. Repository Housekeeping Checklist (Non-Phase)
+## 2. Final Delivery Sign-Off Note (Phase 14 & 15)
+
+- **Release Version**: `v1.0.0` (`2026-10-22`)
+- **All Phases Completed**: `Phase 1` through `Phase 15` (`[x]` 15 / 15 phases completed).
+- **Open Blocking Items**: **0 (Zero)** — No open functional, architectural, security, or build blockers remain.
+- **Architectural & Technical Compliance Verified**:
+  - `NFR-ARCH-001` & `NFR-ARCH-002`: `BeeMart.Web` is 100% decoupled from the database (zero EF Core/SQL Server packages, zero connection strings, zero `DbContext` or SQL references) and consumes `BeeMart.Api` exclusively over HTTP/JSON via `IApiClient`.
+  - `FE-STYLE-001`: 100% pure custom CSS (`wwwroot/css/site.css`) and vanilla JavaScript (`wwwroot/js/site.js`) with zero Bootstrap, Tailwind, or CDN links.
+  - `NFR-SEC-001` & `NFR-SEC-002`: BCrypt work factor 11 password hashing (`PasswordHash`), JWT Bearer authentication on `BeeMart.Api`, Cookie Authentication on `BeeMart.Web`, and strict role-based access & history data isolation between `Cashier` and `Admin`.
+  - **Build & E2E Status**: `dotnet clean BeeMart.sln` and `dotnet build BeeMart.sln` succeed with **0 Warning(s) and 0 Error(s)**; all 18 automated End-to-End regression test cases pass (`18/18 PASS`).
+
+---
+
+## 3. Repository Housekeeping Checklist (Non-Phase)
 
 - [x] Create standard Visual Studio / .NET `.gitignore` at the repository root (ignoring `bin/`, `obj/`, `.vs/`, `*.user`, `*.suo`, `*.userprefs`, `*.log`, `TestResults/`, `.idea/`, `.vscode/*`, `*.mdf`, `*.ldf`, `scratch/`, while keeping `launchSettings.json` and `appsettings.Development.json` tracked).
 - [x] Create practical `README.md` at the repository root (project overview, tech stack, layout, prerequisites, setup steps, seeded accounts table with local-dev password note, and phase status).
@@ -81,7 +95,7 @@ Daftar *to-do* dan status pengerjaan proyek **BeeMart POS Web App** berdasarkan 
 
 ---
 
-## 3. Notes / Decisions / Blockers (Assumptions Recorded in Phases 1–13)
+## 4. Notes / Decisions / Blockers (Assumptions Recorded in Phases 1–15)
 
 1. **WebClient Project Template Choice (`ASP.NET Core Razor Pages`)**:
    - Sesuai `NFR-TECH-002` dan instruksi Phase 1 Task 3 (*"ASP.NET Core Razor Pages or MVC, net8.0"*), proyek `BeeMart.Web` dibuat menggunakan template **ASP.NET Core Razor Pages** karena sangat selaras dengan pembagian fase berbasis halaman (*Phase 11: Auth Pages*, *Phase 12: Shared Layout*, *Phase 13: New Transaction Page*, *Phase 14: History Page*).

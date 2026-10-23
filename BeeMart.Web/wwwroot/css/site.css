@@ -1,11 +1,6 @@
-/* ============================================================================
-   BeeMart POS Web App — Custom CSS Framework (FE-STYLE-001)
-   Pure custom CSS implementation with ZERO Bootstrap or external dependencies.
-   ============================================================================ */
+/* --- BeeMart POS Web App — Custom Stylesheet --- */
 
-/* ----------------------------------------------------------------------------
-   1. CSS Custom Properties (:root)
-   ---------------------------------------------------------------------------- */
+/* --- 1. CSS Custom Properties (:root) --- */
 :root {
     /* Core Brand & Theme Palette */
     --color-primary: #F59E0B;           /* Amber-Honey Bee Theme */
@@ -60,9 +55,7 @@
     --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* ----------------------------------------------------------------------------
-   2. Reset & Base Box-Sizing
-   ---------------------------------------------------------------------------- */
+/* --- 2. Reset & Base Box-Sizing --- */
 *,
 *::before,
 *::after {
@@ -106,9 +99,7 @@ svg {
     max-width: 100%;
 }
 
-/* ----------------------------------------------------------------------------
-   3. Typography Utilities
-   ---------------------------------------------------------------------------- */
+/* --- 3. Typography Utilities --- */
 h1, h2, h3, h4, h5, h6 {
     color: var(--color-dark-slate);
     font-weight: 700;
@@ -179,9 +170,7 @@ p {
     font-variant-numeric: tabular-nums;
 }
 
-/* ----------------------------------------------------------------------------
-   4. Layout, Containers, Flex & Grid Utilities
-   ---------------------------------------------------------------------------- */
+/* --- 4. Layout, Containers, Flex & Grid Utilities --- */
 .container {
     width: 100%;
     max-width: 1200px;
@@ -235,9 +224,7 @@ p {
 .mb-6 { margin-bottom: 1.5rem; }
 .w-full { width: 100%; }
 
-/* ----------------------------------------------------------------------------
-   5. Global Header, Top Navbar & Navigation Tabs
-   ---------------------------------------------------------------------------- */
+/* --- 5. Global Header, Top Navbar & Navigation Tabs --- */
 .app-header {
     background-color: var(--color-dark-slate);
     border-bottom: 3px solid var(--color-primary);
@@ -337,9 +324,7 @@ p {
     color: #FFFFFF;
 }
 
-/* ----------------------------------------------------------------------------
-   6. Cards & Panels
-   ---------------------------------------------------------------------------- */
+/* --- 6. Cards & Panels --- */
 .card {
     background-color: var(--color-surface);
     border: 1px solid var(--color-border);
@@ -408,9 +393,7 @@ p {
     margin-bottom: 1.25rem;
 }
 
-/* ----------------------------------------------------------------------------
-   7. Form Elements & Validation
-   ---------------------------------------------------------------------------- */
+/* --- 7. Form Elements & Validation --- */
 .form-group {
     margin-bottom: 1rem;
 }
@@ -483,9 +466,7 @@ p {
     display: none;
 }
 
-/* ----------------------------------------------------------------------------
-   8. Buttons
-   ---------------------------------------------------------------------------- */
+/* --- 8. Buttons --- */
 .btn {
     display: inline-flex;
     align-items: center;
@@ -603,9 +584,7 @@ p {
     width: 100%;
 }
 
-/* ----------------------------------------------------------------------------
-   9. Tables
-   ---------------------------------------------------------------------------- */
+/* --- 9. Tables --- */
 .table-responsive {
     width: 100%;
     overflow-x: auto;
@@ -660,9 +639,7 @@ p {
     font-style: italic;
 }
 
-/* ----------------------------------------------------------------------------
-   10. Badges & Chips
-   ---------------------------------------------------------------------------- */
+/* --- 10. Badges & Chips --- */
 .badge {
     display: inline-flex;
     align-items: center;
@@ -701,9 +678,7 @@ p {
     color: var(--color-dark-slate);
 }
 
-/* ----------------------------------------------------------------------------
-   11. Alert Boxes & Toast Notifications
-   ---------------------------------------------------------------------------- */
+/* --- 11. Alert Boxes & Toast Notifications --- */
 .alert {
     padding: 0.85rem 1.1rem;
     border-radius: var(--radius-sm);
@@ -757,9 +732,7 @@ p {
     opacity: 1;
 }
 
-/* ----------------------------------------------------------------------------
-   12. Modal Backdrop & Dialog Styles
-   ---------------------------------------------------------------------------- */
+/* --- 12. Modal Backdrop & Dialog Styles --- */
 .modal-backdrop {
     position: fixed;
     inset: 0;
@@ -819,9 +792,7 @@ p {
     gap: 0.5rem;
 }
 
-/* ----------------------------------------------------------------------------
-   13. Pagination & Footer
-   ---------------------------------------------------------------------------- */
+/* --- 13. Pagination & Footer --- */
 .pagination {
     display: flex;
     align-items: center;
@@ -874,9 +845,7 @@ p {
     margin-top: auto;
 }
 
-/* ----------------------------------------------------------------------------
-   14. POS New Transaction Layout & Receipt Components
-   ---------------------------------------------------------------------------- */
+/* --- 14. POS New Transaction Layout & Receipt Components --- */
 .pos-layout {
     display: grid;
     grid-template-columns: 1.15fr 1fr;
@@ -1032,9 +1001,7 @@ p {
     gap: 0.4rem;
 }
 
-/* ----------------------------------------------------------------------------
-   15. Transaction History Filter Bar & Expandable Detail Sub-Table
-   ---------------------------------------------------------------------------- */
+/* --- 15. Transaction History Filter Bar & Expandable Detail Sub-Table --- */
 .history-subtitle {
     font-style: italic;
     color: var(--color-text-secondary);
@@ -1123,9 +1090,7 @@ p {
     border-bottom: none;
 }
 
-/* ----------------------------------------------------------------------------
-   16. Responsive Adjustments
-   ---------------------------------------------------------------------------- */
+/* --- 16. Responsive Adjustments --- */
 @media (max-width: 992px) {
     .pos-layout {
         grid-template-columns: 1fr;

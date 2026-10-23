@@ -22,20 +22,30 @@ flowchart LR
 
 ---
 
-## 2. Directory Tree
+## 2. Directory Tree & File Count Statistics
 
-Item yang sudah dibuat pada **Phase 1–13** (beserta *repository housekeeping*) ditandai sebagai **Active**, sedangkan item untuk fase berikutnya ditandai sebagai **Planned (Phase X)**.
+Seluruh komponen solusi pada **Phase 1–15** telah selesai diimplementasikan dan berstatus **Active**.
+
+### 2.1 File Count Summary (Excluding Build Artifacts `bin/` & `obj/`)
+| Scope / Project | File Count | Breakdown |
+| :--- | :---: | :--- |
+| **Solution Root & Database (`BeeMart/` & `Database/`)** | **10** | 8 root configuration/documentation files (`.gitattributes`, `.gitignore`, `README.md`, `BeeMart.sln`, `PRD.md`, `STRUCTURE.md`, `CHANGELOG.md`, `OPEN-ITEMS.md`) + 2 database files (`Database/.gitkeep`, `Database/BeeMart.sql`) |
+| **Backend API (`BeeMart.Api/`)** | **35** | 5 project/config files, 5 Controller files (`Controllers/`), 1 `DbContext` (`Data/`), 5 EF Core Entities (`Models/Entities/`), 15 DTOs (`Models/DTOs/`), 4 Common infrastructure files (`Common/`) |
+| **WebClient UI (`BeeMart.Web/`)** | **35** | 5 project/config files, 6 ViewModels/DTOs (`Models/`), 2 Typed HTTP Client services (`Services/`), 19 Razor Pages & PageModels (`Pages/`), 3 static assets (`wwwroot/favicon.ico`, `wwwroot/css/site.css`, `wwwroot/js/site.js`) |
+| **Total Solution Files** | **80** | **100% Active (Phase 1–15 Complete)** |
+
+### 2.2 Complete Directory Tree
 
 ```text
 BeeMart/
-├── .gitattributes                                   [Active - Repo Root]
+├── .gitattributes                                   [Active - Repo Root (Frozen)]
 ├── .gitignore                                       [Active - Repo Housekeeping]
 ├── README.md                                        [Active - Repo Housekeeping]
-├── BeeMart.sln                                      [Active - Phase 1]
-├── PRD.md                                           [Active - Phase 0/1]
-├── STRUCTURE.md                                     [Active - Phase 1-13]
-├── CHANGELOG.md                                     [Active - Phase 1-13]
-├── OPEN-ITEMS.md                                    [Active - Phase 1-13]
+├── BeeMart.sln                                      [Active - Phase 1-15]
+├── PRD.md                                           [Active - Phase 0/1 (Read-Only)]
+├── STRUCTURE.md                                     [Active - Phase 1-15]
+├── CHANGELOG.md                                     [Active - Phase 1-15]
+├── OPEN-ITEMS.md                                    [Active - Phase 1-15]
 ├── Database/                                        [Active - Phase 1]
 │   ├── .gitkeep                                     [Active - Phase 1]
 │   └── BeeMart.sql                                  [Active - Phase 2 (DDL) & Phase 3 (Seed DML)]
@@ -137,7 +147,7 @@ BeeMart/
 
 ---
 
-## 3. Detailed Inventory of Existing Folders & Files (Phase 1–13)
+## 3. Detailed Inventory of Solution Folders & Files (Phase 1–15)
 
 ### 3.1 Solution Root (`BeeMart/`)
 | Path | Project / Scope | Purpose (Fungsi) | Connections & Dependencies |
@@ -234,8 +244,11 @@ BeeMart/
 
 ---
 
-## 4. Planned Items by Phase (Phase 14 – Phase 15)
+## 4. Phase Delivery Status Summary (Phase 1 – Phase 15)
 
-| Planned Path | Target Project / Folder | Planned Phase | Purpose |
+| Phase Range | Target Scope | Status | Summary |
 | :--- | :--- | :---: | :--- |
-| *(Seluruh file utama solusi telah aktif pada Phase 1–13)* | `BeeMart.Api` & `BeeMart.Web` | Phase 14–15 | Validasi *End-to-End (E2E)*, *UI Polish*, dan pengecekan kelengkapan pengumpulan (*Final Delivery Verification*). |
+| **Phase 1–3** | Solution Scaffolding & SQL Server Database (`Database/BeeMart.sql`) | **Active (Completed)** | `BeeMart.sln`, `BeeMart.Api`, `BeeMart.Web`, 5-table DDL schema, indexes, constraints, and idempotent DML seed data (3 payment methods, 6 BCrypt-hashed users, 22 products). |
+| **Phase 4–9** | Backend RESTful API (`BeeMart.Api`) | **Active (Completed)** | EF Core 8 `BeeMartDbContext`, `ApiResponse<T>`, `PasswordHasher` (BCrypt), `JwtTokenService`, `ClaimsHelper`, and `/api/v1` endpoints for Auth, Payment Methods, Product Search, POS Transactions, and Role-Isolated History. |
+| **Phase 10–13** | WebClient Razor Pages UI (`BeeMart.Web`) | **Active (Completed)** | Zero-DB/Zero-Bootstrap Razor Pages client using `IApiClient` (`HttpClient`), Cookie Auth + JWT Bearer forwarding, custom CSS framework (`wwwroot/css/site.css`), Login/Register/Logout/AccessDenied, POS New Transaction, and Role-Aware Transaction History. |
+| **Phase 14–15** | Final QA, Architecture Compliance Audit & Delivery Sign-Off | **Active (Completed)** | Full solution build (`0 Warning(s)`, `0 Error(s)`), Architecture & Styling compliance audit (`NFR-ARCH-001/002`, `FE-STYLE-001`, `NFR-SEC-001/002`), automated E2E regression verification, and living documentation sign-off (`v1.0.0`). |

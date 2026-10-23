@@ -1,7 +1,6 @@
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
-using Microsoft.AspNetCore.Authentication;
 
 namespace BeeMart.Web.Services;
 
@@ -12,8 +11,6 @@ namespace BeeMart.Web.Services;
 public class ApiClient : IApiClient
 {
     public const string JwtClaimType = "jwt_token";
-    public const string TokenClaimType = "Token";
-    public const string AccessTokenName = "access_token";
 
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
@@ -39,7 +36,7 @@ public class ApiClient : IApiClient
     {
         var relativePath = NormalizeEndpoint(endpoint);
         using var request = new HttpRequestMessage(HttpMethod.Get, relativePath);
-        await AttachBearerTokenAsync(request);
+        AttachBearerToken(request);
 
         return await SendAndUnwrapAsync<T>(request, cancellationToken);
     }
@@ -55,7 +52,7 @@ public class ApiClient : IApiClient
         {
             Content = JsonContent.Create(payload, options: JsonOptions)
         };
-        await AttachBearerTokenAsync(request);
+        AttachBearerToken(request);
 
         return await SendAndUnwrapAsync<TResponse>(request, cancellationToken);
     }
@@ -69,7 +66,7 @@ public class ApiClient : IApiClient
         return PostAsync<object?, TResponse>(endpoint, payload, cancellationToken);
     }
 
-    private async Task AttachBearerTokenAsync(HttpRequestMessage request)
+    private void AttachBearerToken(HttpRequestMessage request)
     {
         var httpContext = _httpContextAccessor.HttpContext;
         if (httpContext?.User?.Identity?.IsAuthenticated != true)
@@ -77,15 +74,7 @@ public class ApiClient : IApiClient
             return;
         }
 
-        var token = httpContext.User.FindFirst(JwtClaimType)?.Value
-                    ?? httpContext.User.FindFirst(TokenClaimType)?.Value
-                    ?? httpContext.User.FindFirst(AccessTokenName)?.Value;
-
-        if (string.IsNullOrWhiteSpace(token))
-        {
-            token = await httpContext.GetTokenAsync(AccessTokenName);
-        }
-
+        var token = httpContext.User.FindFirst(JwtClaimType)?.Value;
         if (!string.IsNullOrWhiteSpace(token))
         {
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);

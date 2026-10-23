@@ -9,25 +9,12 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 namespace BeeMart.Web.Pages.Transaction;
 
 /// <summary>
-/// PageModel for the Role-Aware Transaction History screen (<c>/Transaction/History</c>, <c>FEAT-HIST-01</c> &amp; <c>FEAT-HIST-02</c>).
-/// Accessible by both <c>Admin</c> and <c>Cashier</c> roles (<c>[Authorize]</c>).
-/// <c>Cashier</c> users see only their own transactions with no cashier filter selector;
-/// <c>Admin</c> users see transactions across all cashiers and can filter by a specific cashier.
-/// All data operations flow exclusively through <see cref="IApiClient"/> (<c>NFR-ARCH-001</c>, <c>NFR-ARCH-002</c>).
+/// PageModel for the role-aware Transaction History screen (<c>/Transaction/History</c>).
+/// Cashiers view only their own transactions, while Admins can view and filter across all cashiers.
 /// </summary>
 [Authorize]
 public class HistoryModel : PageModel
 {
-    private static readonly IReadOnlyList<CashierFilterOptionViewModel> DefaultSeededCashiers =
-        new List<CashierFilterOptionViewModel>
-        {
-            new() { CashierId = "76985", CashierName = "Steven", Username = "steven" },
-            new() { CashierId = "66859", CashierName = "Gabri", Username = "gabri" },
-            new() { CashierId = "55794", CashierName = "Mona", Username = "mona" },
-            new() { CashierId = "78886", CashierName = "Felix", Username = "felix" },
-            new() { CashierId = "55356", CashierName = "Gobuta", Username = "gobuta" }
-        };
-
     private readonly IApiClient _apiClient;
 
     public HistoryModel(IApiClient apiClient)
@@ -132,7 +119,7 @@ public class HistoryModel : PageModel
         var cashierOptions = new List<CashierFilterOptionViewModel>();
         if (IsAdmin)
         {
-            cashierOptions = BuildCashierFilterOptions(items, effectiveCashierId);
+            cashierOptions = await ResolveCashierFilterOptionsAsync(items, effectiveCashierId, cancellationToken);
         }
 
         ViewModel = new TransactionHistoryViewModel
@@ -206,32 +193,41 @@ public class HistoryModel : PageModel
         return "transactions/history?" + string.Join("&", queryParts);
     }
 
-    private static List<CashierFilterOptionViewModel> BuildCashierFilterOptions(
-        IEnumerable<TransactionHistoryItemViewModel> currentItems,
-        string? selectedCashierId)
+    private async Task<List<CashierFilterOptionViewModel>> ResolveCashierFilterOptionsAsync(
+        IReadOnlyCollection<TransactionHistoryItemViewModel> currentItems,
+        string? selectedCashierId,
+        CancellationToken cancellationToken)
     {
         var map = new Dictionary<string, CashierFilterOptionViewModel>(StringComparer.OrdinalIgnoreCase);
 
-        foreach (var seeded in DefaultSeededCashiers)
+        void AddItems(IEnumerable<TransactionHistoryItemViewModel> source)
         {
-            map[seeded.CashierId] = new CashierFilterOptionViewModel
+            foreach (var item in source)
             {
-                CashierId = seeded.CashierId,
-                CashierName = seeded.CashierName,
-                Username = seeded.Username
-            };
+                if (!string.IsNullOrWhiteSpace(item.CashierId) && !map.ContainsKey(item.CashierId))
+                {
+                    map[item.CashierId] = new CashierFilterOptionViewModel
+                    {
+                        CashierId = item.CashierId,
+                        CashierName = !string.IsNullOrWhiteSpace(item.CashierName) ? item.CashierName : item.CashierId,
+                        Username = string.Empty
+                    };
+                }
+            }
         }
 
-        foreach (var item in currentItems)
+        AddItems(currentItems);
+
+        // When filtered or paged, also query recent unfiltered history from the API to keep all active cashiers selectable
+        if (!string.IsNullOrWhiteSpace(selectedCashierId) || StartDate.HasValue || EndDate.HasValue || CurrentPage > 1)
         {
-            if (!string.IsNullOrWhiteSpace(item.CashierId) && !map.ContainsKey(item.CashierId))
+            var lookupResponse = await _apiClient.GetAsync<TransactionHistoryResponse>(
+                "transactions/history?page=1&pageSize=50",
+                cancellationToken);
+
+            if (lookupResponse.IsSuccess && lookupResponse.Data?.Items is not null)
             {
-                map[item.CashierId] = new CashierFilterOptionViewModel
-                {
-                    CashierId = item.CashierId,
-                    CashierName = !string.IsNullOrWhiteSpace(item.CashierName) ? item.CashierName : item.CashierId,
-                    Username = string.Empty
-                };
+                AddItems(lookupResponse.Data.Items);
             }
         }
 

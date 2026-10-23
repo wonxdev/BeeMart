@@ -1,0 +1,67 @@
+<div class="modal-backdrop" id="receipt-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="receipt-modal-title">
+    <div class="modal-dialog">
+        <div class="modal-header">
+            <h3 class="modal-title" id="receipt-modal-title">Struk Transaksi Berhasil</h3>
+            <span class="badge badge-success">PAID / LUNAS</span>
+        </div>
+        <div class="modal-body">
+            <div class="receipt-meta-grid">
+                <div>
+                    <span class="text-muted">No. Invoice:</span>
+                    <div class="font-bold font-mono" id="receipt-invoice-no">-</div>
+                </div>
+                <div>
+                    <span class="text-muted">Tanggal &amp; Waktu:</span>
+                    <div class="font-semibold" id="receipt-date">-</div>
+                </div>
+                <div>
+                    <span class="text-muted">Kasir:</span>
+                    <div class="font-semibold" id="receipt-cashier">-</div>
+                </div>
+                <div>
+                    <span class="text-muted">Metode Pembayaran:</span>
+                    <div class="font-semibold" id="receipt-payment-method">-</div>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table" aria-label="Rincian Barang Struk">
+                    <thead>
+                        <tr>
+                            <th>Barang</th>
+                            <th class="text-center">Qty</th>
+                            <th class="text-right">Harga</th>
+                            <th class="text-right">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody id="receipt-items-tbody">
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="receipt-totals">
+                <div class="d-flex justify-between">
+                    <span class="text-secondary">Total Item:</span>
+                    <span class="font-bold" id="receipt-total-item">0</span>
+                </div>
+                <div class="d-flex justify-between">
+                    <span class="font-bold">Total Belanja:</span>
+                    <span class="price-text" id="receipt-total-price">Rp 0</span>
+                </div>
+                <div class="d-flex justify-between">
+                    <span class="text-secondary">Uang Diterima:</span>
+                    <span class="price-text" id="receipt-customer-money">Rp 0</span>
+                </div>
+                <div class="d-flex justify-between">
+                    <span class="font-bold text-success">Kembalian:</span>
+                    <span class="price-text text-success" id="receipt-change">Rp 0</span>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" id="new-transaction-reset-btn" class="btn btn-accent btn-block">
+                Transaksi Baru
+            </button>
+        </div>
+    </div>
+</div>

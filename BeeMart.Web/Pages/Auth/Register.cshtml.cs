@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 namespace BeeMart.Web.Pages.Auth;
 
 /// <summary>
-/// PageModel for <c>/Auth/Register</c> (<c>FEAT-AUTH-02</c>).
+/// PageModel for <c>/Auth/Register</c>.
 /// Registers a new user account via <c>POST /api/v1/auth/register</c> and redirects to <c>/Auth/Login</c> on success.
 /// </summary>
 [AllowAnonymous]

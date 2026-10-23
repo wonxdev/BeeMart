@@ -3,23 +3,17 @@ using BCrypt.Net;
 namespace BeeMart.Api.Common;
 
 /// <summary>
-/// Abstraction for hashing and verifying user passwords using BCrypt (NFR-SEC-001).
+/// Abstraction for hashing and verifying user passwords using BCrypt.
 /// </summary>
 public interface IPasswordHasher
 {
-    /// <summary>
-    /// Hashes a plain-text password using BCrypt with work factor 11.
-    /// </summary>
     string HashPassword(string password);
 
-    /// <summary>
-    /// Verifies a plain-text password against a stored BCrypt hash.
-    /// </summary>
     bool VerifyPassword(string password, string hash);
 }
 
 /// <summary>
-/// BCrypt implementation of <see cref="IPasswordHasher"/> using work factor 11 (matching Phase 3 seed hashes).
+/// BCrypt implementation of <see cref="IPasswordHasher"/> using work factor 11.
 /// </summary>
 public class PasswordHasher : IPasswordHasher
 {

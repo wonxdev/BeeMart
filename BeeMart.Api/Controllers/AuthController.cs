@@ -31,7 +31,7 @@ public class AuthController : ControllerBase
     }
 
     /// <summary>
-    /// Registers a new user account (<c>API-AUTH-02</c>).
+    /// Registers a new user account.
     /// </summary>
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterRequest? request)
@@ -58,24 +58,12 @@ public class AuthController : ControllerBase
             return BadRequest(ApiResponse.Error("Role must be either Admin or Cashier"));
         }
 
-        var canonicalRole = trimmedRole;
-
-        var trimmedUsername = request.Username.Trim();
+        request.Username = request.Username.Trim();
         var trimmedFullName = request.FullName.Trim();
 
-        // Case-insensitive conflict check against active users (Stsrc == true)
-        var existingUser = await _dbContext.Users
-            .AsNoTracking()
-            .FirstOrDefaultAsync(u => u.Username.ToLower() == trimmedUsername.ToLower());
-
-        if (existingUser is not null && existingUser.Stsrc)
+        var existingUser = await _dbContext.Users.FirstOrDefaultAsync(u => u.Username == request.Username);
+        if (existingUser != null)
         {
-            return BadRequest(ApiResponse.Error("username has already exists"));
-        }
-
-        if (existingUser is not null)
-        {
-            // Also guard the unique index UQ_MsUser_Username if an inactive record shares the username
             return BadRequest(ApiResponse.Error("username has already exists"));
         }
 
@@ -85,13 +73,13 @@ public class AuthController : ControllerBase
         var newUser = new MsUser
         {
             IdUser = newIdUser,
-            Username = trimmedUsername,
+            Username = request.Username,
             FullName = trimmedFullName,
             PasswordHash = passwordHash,
-            Role = canonicalRole,
+            Role = trimmedRole,
             Stsrc = true,
             DateIn = DateTime.Now,
-            UserIn = trimmedUsername,
+            UserIn = request.Username,
             Dateup = null,
             Userup = null
         };
@@ -113,7 +101,7 @@ public class AuthController : ControllerBase
     }
 
     /// <summary>
-    /// Authenticates a user and issues a JWT bearer token (<c>API-AUTH-01</c>).
+    /// Authenticates a user and issues a JWT bearer token.
     /// </summary>
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest? request)

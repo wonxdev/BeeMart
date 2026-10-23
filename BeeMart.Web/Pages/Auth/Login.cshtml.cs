@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 namespace BeeMart.Web.Pages.Auth;
 
 /// <summary>
-/// PageModel for <c>/Auth/Login</c> (<c>FEAT-AUTH-01</c>).
+/// PageModel for <c>/Auth/Login</c>.
 /// Authenticates the user via <c>POST /api/v1/auth/login</c> and issues a Cookie Authentication ticket containing the JWT token.
 /// </summary>
 [AllowAnonymous]

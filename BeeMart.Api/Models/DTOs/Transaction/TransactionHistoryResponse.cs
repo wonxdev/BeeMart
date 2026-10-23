@@ -1,7 +1,7 @@
 namespace BeeMart.Api.Models.DTOs.Transaction;
 
 /// <summary>
-/// Paginated response payload for <c>GET /api/v1/transactions/history</c> (<c>API-HIST-01</c>).
+/// Paginated response payload for <c>GET /api/v1/transactions/history</c>.
 /// </summary>
 public class TransactionHistoryResponse
 {

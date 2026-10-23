@@ -1,17 +1,9 @@
-/* ============================================================================
- * Project   : Binus Point of Sale (POS) Web App — BeeMart
- * File      : Database/BeeMart.sql
- * Purpose   : SQL Server Database Schema (DDL) for BeeMart POS System
- * Scope     : Phase 2: DDL only, seed data comes in Phase 3
- * Target    : Microsoft SQL Server (T-SQL) — Re-runnable / Idempotent
- * ============================================================================ */
+/* --- BeeMart POS System — SQL Server Database Schema & Seed Data --- */
 
 SET NOCOUNT ON;
 GO
 
-/* ============================================================================
- * 0. DATABASE CREATION
- * ============================================================================ */
+/* --- 0. Database Creation --- */
 IF DB_ID(N'BeeMart') IS NULL
 BEGIN
     CREATE DATABASE [BeeMart];
@@ -21,9 +13,7 @@ GO
 USE [BeeMart];
 GO
 
-/* ============================================================================
- * 1. TABLE: LtPaymentMethod (DB-ENTITY-002)
- * ============================================================================ */
+/* --- 1. Table: LtPaymentMethod --- */
 IF OBJECT_ID(N'dbo.LtPaymentMethod', N'U') IS NULL
 BEGIN
     CREATE TABLE [dbo].[LtPaymentMethod]
@@ -43,9 +33,7 @@ BEGIN
 END
 GO
 
-/* ============================================================================
- * 2. TABLE: MsUser (DB-ENTITY-001)
- * ============================================================================ */
+/* --- 2. Table: MsUser --- */
 IF OBJECT_ID(N'dbo.MsUser', N'U') IS NULL
 BEGIN
     CREATE TABLE [dbo].[MsUser]
@@ -67,9 +55,7 @@ BEGIN
 END
 GO
 
-/* ============================================================================
- * 3. TABLE: MsProduct (DB-ENTITY-003)
- * ============================================================================ */
+/* --- 3. Table: MsProduct --- */
 IF OBJECT_ID(N'dbo.MsProduct', N'U') IS NULL
 BEGIN
     CREATE TABLE [dbo].[MsProduct]
@@ -91,9 +77,7 @@ BEGIN
 END
 GO
 
-/* ============================================================================
- * 4. TABLE: TrTransaction (DB-ENTITY-004)
- * ============================================================================ */
+/* --- 4. Table: TrTransaction --- */
 IF OBJECT_ID(N'dbo.TrTransaction', N'U') IS NULL
 BEGIN
     CREATE TABLE [dbo].[TrTransaction]
@@ -117,9 +101,7 @@ BEGIN
 END
 GO
 
-/* ============================================================================
- * 5. TABLE: TrTransactionDetail (DB-ENTITY-005)
- * ============================================================================ */
+/* --- 5. Table: TrTransactionDetail --- */
 IF OBJECT_ID(N'dbo.TrTransactionDetail', N'U') IS NULL
 BEGIN
     CREATE TABLE [dbo].[TrTransactionDetail]
@@ -144,9 +126,7 @@ BEGIN
 END
 GO
 
-/* ============================================================================
- * 6. SECTION 5.4 CONSTRAINTS & INDEXES (IDEMPOTENT GUARDS)
- * ============================================================================ */
+/* --- 6. Constraints & Indexes --- */
 
 -- 6.1 UQ_MsUser_Username: Unique index on MsUser(Username)
 IF NOT EXISTS (
@@ -200,14 +180,7 @@ BEGIN
 END
 GO
 
--- PHASE 3: SEED DATA GOES BELOW THIS LINE
-
-USE [BeeMart];
-GO
-
-/* ============================================================================
- * 7. SEED DATA: LtPaymentMethod (3 rows: Cash = 1, Debit = 2, Credit = 3)
- * ============================================================================ */
+/* --- 7. Seed Data: LtPaymentMethod --- */
 IF NOT EXISTS (SELECT 1 FROM [dbo].[LtPaymentMethod] WHERE [MethodName] = N'Cash')
 BEGIN
     INSERT INTO [dbo].[LtPaymentMethod] ([MethodName], [UserIn])
@@ -227,9 +200,7 @@ BEGIN
 END
 GO
 
-/* ============================================================================
- * 8. SEED DATA: MsUser (6 rows — PRD Section 5.4, BCrypt work factor 11)
- * ============================================================================ */
+/* --- 8. Seed Data: MsUser --- */
 INSERT INTO [dbo].[MsUser] ([IdUser], [Username], [FullName], [PasswordHash], [Role], [UserIn])
 SELECT v.[IdUser], v.[Username], v.[FullName], v.[PasswordHash], v.[Role], N'SYSTEM'
 FROM (VALUES
@@ -247,19 +218,17 @@ WHERE NOT EXISTS (
 );
 GO
 
-/* ============================================================================
- * 9. SEED DATA: MsProduct (22 rows: 12 Apel, 4 Susu, 6 General Groceries)
- * ============================================================================ */
+/* --- 9. Seed Data: MsProduct --- */
 INSERT INTO [dbo].[MsProduct] ([IdProduct], [Name], [Weight], [Stock], [Price], [Discount], [UserIn])
 SELECT v.[IdProduct], v.[Name], v.[Weight], v.[Stock], v.[Price], v.[Discount], N'SYSTEM'
 FROM (VALUES
-    -- Core PRD products (0001 - 0004)
+    -- Core catalog products (0001 - 0004)
     (N'a1b2c3d4-0001-4000-8000-000000000001', N'Apel Fuji',                  CAST(1.00 AS DECIMAL(10,2)),  50, CAST(35000.00 AS DECIMAL(18,2)), CAST( 0.00 AS DECIMAL(5,2))),
     (N'a1b2c3d4-0002-4000-8000-000000000002', N'Apel Merah',                 CAST(1.00 AS DECIMAL(10,2)),  30, CAST(30000.00 AS DECIMAL(18,2)), CAST( 5.00 AS DECIMAL(5,2))),
     (N'a1b2c3d4-0003-4000-8000-000000000003', N'Apel Hijau',                 CAST(1.00 AS DECIMAL(10,2)),  25, CAST(28000.00 AS DECIMAL(18,2)), CAST( 0.00 AS DECIMAL(5,2))),
     (N'a1b2c3d4-0004-4000-8000-000000000004', N'Susu UHT Full Cream',        CAST(1.00 AS DECIMAL(10,2)),  40, CAST(18000.00 AS DECIMAL(18,2)), CAST( 0.00 AS DECIMAL(5,2))),
 
-    -- Additional Apel products (0005 - 0013) -> Total 12 'Apel' products to test >10 search limit
+    -- Additional Apel products (0005 - 0013)
     (N'a1b2c3d4-0005-4000-8000-000000000005', N'Apel Malang',                CAST(1.00 AS DECIMAL(10,2)),  60, CAST(24000.00 AS DECIMAL(18,2)), CAST( 0.00 AS DECIMAL(5,2))),
     (N'a1b2c3d4-0006-4000-8000-000000000006', N'Apel Royal Gala',            CAST(1.00 AS DECIMAL(10,2)),  35, CAST(38000.00 AS DECIMAL(18,2)), CAST( 5.00 AS DECIMAL(5,2))),
     (N'a1b2c3d4-0007-4000-8000-000000000007', N'Apel Granny Smith',          CAST(1.00 AS DECIMAL(10,2)),  20, CAST(42000.00 AS DECIMAL(18,2)), CAST(10.00 AS DECIMAL(5,2))),
@@ -270,12 +239,12 @@ FROM (VALUES
     (N'a1b2c3d4-0012-4000-8000-000000000012', N'Apel Red Delicious',         CAST(1.00 AS DECIMAL(10,2)),  45, CAST(32000.00 AS DECIMAL(18,2)), CAST( 5.00 AS DECIMAL(5,2))),
     (N'a1b2c3d4-0013-4000-8000-000000000013', N'Apel Manalagi',              CAST(1.00 AS DECIMAL(10,2)),  55, CAST(26000.00 AS DECIMAL(18,2)), CAST( 0.00 AS DECIMAL(5,2))),
 
-    -- Additional Susu products (0014 - 0016) -> Total 4 'Susu' products
+    -- Additional Susu products (0014 - 0016)
     (N'a1b2c3d4-0014-4000-8000-000000000014', N'Susu UHT Cokelat',           CAST(1.00 AS DECIMAL(10,2)),  45, CAST(18500.00 AS DECIMAL(18,2)), CAST( 0.00 AS DECIMAL(5,2))),
     (N'a1b2c3d4-0015-4000-8000-000000000015', N'Susu UHT Stroberi',          CAST(1.00 AS DECIMAL(10,2)),  35, CAST(18500.00 AS DECIMAL(18,2)), CAST( 5.00 AS DECIMAL(5,2))),
     (N'a1b2c3d4-0016-4000-8000-000000000016', N'Susu Kental Manis Putih',    CAST(0.37 AS DECIMAL(10,2)),  60, CAST(12500.00 AS DECIMAL(18,2)), CAST( 0.00 AS DECIMAL(5,2))),
 
-    -- Other grocery products (0017 - 0022) -> 6 unrelated products
+    -- General grocery products (0017 - 0022)
     (N'a1b2c3d4-0017-4000-8000-000000000017', N'Beras Pandan Wangi 5 Kg',    CAST(5.00 AS DECIMAL(10,2)),  40, CAST(75000.00 AS DECIMAL(18,2)), CAST( 5.00 AS DECIMAL(5,2))),
     (N'a1b2c3d4-0018-4000-8000-000000000018', N'Minyak Goreng Sawit 2 L',    CAST(1.80 AS DECIMAL(10,2)),  50, CAST(36000.00 AS DECIMAL(18,2)), CAST( 0.00 AS DECIMAL(5,2))),
     (N'a1b2c3d4-0019-4000-8000-000000000019', N'Gula Pasir Putih 1 Kg',      CAST(1.00 AS DECIMAL(10,2)),  70, CAST(17500.00 AS DECIMAL(18,2)), CAST( 0.00 AS DECIMAL(5,2))),
@@ -289,4 +258,3 @@ WHERE NOT EXISTS (
     WHERE p.[IdProduct] = v.[IdProduct]
 );
 GO
-

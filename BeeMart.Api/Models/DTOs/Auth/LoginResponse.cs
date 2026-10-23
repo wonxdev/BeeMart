@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 namespace BeeMart.Api.Models.DTOs.Auth;
 
 /// <summary>
-/// Response data payload for <c>POST /api/v1/auth/login</c> (<c>API-AUTH-01</c>).
+/// Response data payload for <c>POST /api/v1/auth/login</c>.
 /// </summary>
 public class LoginResponse
 {

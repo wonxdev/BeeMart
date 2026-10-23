@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 namespace BeeMart.Web.Services;
 
 /// <summary>
-/// Standard API response wrapper matching Backend API JSON structure (PRD Section 6.2).
+/// Standard API response wrapper matching Backend API JSON structure.
 /// </summary>
 /// <typeparam name="T">The payload data type.</typeparam>
 public class ApiResponse<T>
@@ -48,7 +48,6 @@ public class ApiResponse<T>
 
 /// <summary>
 /// Typed HTTP API client contract for communicating with BeeMart.Api (/api/v1/...).
-/// Enforces NFR-ARCH-001 and NFR-ARCH-002 (100% HTTP/JSON communication, zero direct DB access).
 /// </summary>
 public interface IApiClient
 {

@@ -57,7 +57,7 @@ public class TransactionHistoryItemViewModel
 }
 
 /// <summary>
-/// Paginated API response payload from <c>GET /api/v1/transactions/history</c> (<c>API-HIST-01</c>).
+/// Paginated API response payload from <c>GET /api/v1/transactions/history</c>.
 /// </summary>
 public class TransactionHistoryResponse
 {
@@ -95,7 +95,7 @@ public class CashierFilterOptionViewModel
 }
 
 /// <summary>
-/// ViewModel for the Transaction History page (<c>/Transaction/History</c>, <c>FEAT-HIST-01</c> &amp; <c>FEAT-HIST-02</c>).
+/// ViewModel for the Transaction History page (<c>/Transaction/History</c>).
 /// Holds filter parameters, paginated transaction items with line-item details, and Admin cashier filter options.
 /// </summary>
 public class TransactionHistoryViewModel

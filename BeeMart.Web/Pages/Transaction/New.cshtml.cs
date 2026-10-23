@@ -8,9 +8,9 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 namespace BeeMart.Web.Pages.Transaction;
 
 /// <summary>
-/// PageModel for the Cashier Point of Sale (POS) interface (<c>/Transaction/New</c>, <c>FEAT-TRX-01</c>).
+/// PageModel for the Cashier Point of Sale (POS) interface (<c>/Transaction/New</c>).
 /// Strictly restricted to users in the <c>Cashier</c> role.
-/// All data operations flow exclusively through <see cref="IApiClient"/> (<c>NFR-ARCH-001</c>, <c>NFR-ARCH-002</c>).
+/// All data operations flow exclusively through <see cref="IApiClient"/>.
 /// </summary>
 [Authorize(Roles = "Cashier")]
 public class NewModel : PageModel
